@@ -2,6 +2,8 @@
 #include "NodeEditorManager.h"
 #include "nodes/InputNode.h"
 #include "nodes/OutputNode.h"
+#include "nodes/BrightnessContrastNode.h"
+#include "nodes/ColorChannelSplitterNode.h"
 
 // Pin implementation
 Pin::Pin(int id, const char* name, PinType type, PinKind kind)
@@ -109,7 +111,11 @@ Node* NodeFactory::CreateNode(int nodeType, int id)
 
     case 1:  // Output Node
         return new OutputNode(id);
+    case 2:  // Brightness/Contrast Node
+        return new BrightnessContrastNode(id);
 
+    case 3:  // Color Channel Splitter Node
+        return new ColorChannelSplitterNode(id);
         // Additional node types will be added as they are implemented
 
     default:

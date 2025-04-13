@@ -23,6 +23,13 @@ InputNode::InputNode(int id)
     m_Image = cv::Mat(100, 100, CV_8UC3, cv::Scalar(0, 0, 0));
 }
 
+// Add explicit destructor for proper cleanup
+InputNode::~InputNode()
+{
+    // Clean up OpenGL resources
+    CleanupTexture();
+}
+
 void InputNode::Process()
 {
     // For input nodes, processing is just providing the loaded image
@@ -42,7 +49,21 @@ bool InputNode::LoadImageFile(const std::string& path)
     cv::Mat loadedImage = cv::imread(path, cv::IMREAD_UNCHANGED);
     if (loadedImage.empty())
     {
+        m_LastErrorMessage = "Failed to load image: " + path;
         return false;
+    }
+
+    // Auto-resize large images if enabled
+    if (m_EnableAutoResize)
+    {
+        int maxDim = max(loadedImage.cols, loadedImage.rows);
+        if (maxDim > m_MaxDimension)
+        {
+            double scale = (double)m_MaxDimension / maxDim;
+            cv::Mat resizedImage;
+            cv::resize(loadedImage, resizedImage, cv::Size(), scale, scale, cv::INTER_AREA);
+            loadedImage = resizedImage;
+        }
     }
 
     // Store loaded image
@@ -55,6 +76,7 @@ bool InputNode::LoadImageFile(const std::string& path)
     std::transform(m_FileFormat.begin(), m_FileFormat.end(), m_FileFormat.begin(), ::toupper);
 
     m_ImageLoaded = true;
+    m_LastErrorMessage.clear();
 
     // Update the preview texture
     UpdatePreviewTexture();
@@ -119,6 +141,29 @@ void InputNode::DrawNodeContent()
         ImGui::Text("Format: %s", m_FileFormat.c_str());
         ImGui::Text("File Size: %.2f KB", GetSizeBytes() / 1024.0f);
 
+        // Auto-resize options
+        if (ImGui::Checkbox("Auto-resize large images", &m_EnableAutoResize))
+        {
+            // User changed resize option - reload image if we have one
+            if (!m_FilePath.empty())
+            {
+                LoadImageFile(m_FilePath);
+            }
+        }
+
+        if (m_EnableAutoResize)
+        {
+            ImGui::SameLine();
+            if (ImGui::SliderInt("Max dimension", &m_MaxDimension, 256, 4096))
+            {
+                // User changed max dimension - reload image if we have one
+                if (!m_FilePath.empty())
+                {
+                    LoadImageFile(m_FilePath);
+                }
+            }
+        }
+
         // Add a button to reload or change the image
         if (ImGui::Button("Change Image"))
         {
@@ -128,6 +173,21 @@ void InputNode::DrawNodeContent()
     else
     {
         ImGui::Text("No image loaded");
+
+        // Display error message if any
+        if (!m_LastErrorMessage.empty())
+        {
+            ImGui::TextColored(ImVec4(1.0f, 0.3f, 0.3f, 1.0f), "%s", m_LastErrorMessage.c_str());
+        }
+
+        // Auto-resize options
+        ImGui::Checkbox("Auto-resize large images", &m_EnableAutoResize);
+        if (m_EnableAutoResize)
+        {
+            ImGui::SameLine();
+            ImGui::SliderInt("Max dimension", &m_MaxDimension, 256, 4096);
+        }
+
         if (ImGui::Button("Load Image"))
         {
             ShowOpenFileDialog();
@@ -149,42 +209,89 @@ void InputNode::UpdatePreviewTexture()
     if (m_Image.empty())
         return;
 
+    // Verify we have valid image data
+    if (m_Image.data == nullptr) {
+        m_LastErrorMessage = "Invalid image data";
+        return;
+    }
+
     // Convert image from OpenCV BGR format to RGB for OpenGL
     cv::Mat rgbImage;
-    if (m_Image.channels() == 3)
-        cv::cvtColor(m_Image, rgbImage, cv::COLOR_BGR2RGB);
-    else if (m_Image.channels() == 4)
-        cv::cvtColor(m_Image, rgbImage, cv::COLOR_BGRA2RGBA);
-    else if (m_Image.channels() == 1)
-        cv::cvtColor(m_Image, rgbImage, cv::COLOR_GRAY2RGB);
-    else
-        rgbImage = m_Image.clone(); // Just use as-is if format is unexpected
+    try {
+        if (m_Image.channels() == 3)
+            cv::cvtColor(m_Image, rgbImage, cv::COLOR_BGR2RGB);
+        else if (m_Image.channels() == 4)
+            cv::cvtColor(m_Image, rgbImage, cv::COLOR_BGRA2RGBA);
+        else if (m_Image.channels() == 1)
+            cv::cvtColor(m_Image, rgbImage, cv::COLOR_GRAY2RGB);
+        else
+            rgbImage = m_Image.clone(); // Just use as-is if format is unexpected
+    }
+    catch (const cv::Exception& e) {
+        m_LastErrorMessage = "Image conversion error: " + std::string(e.what());
+        return;
+    }
 
-    // Create OpenGL texture
-    GLuint textureID;
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID);
+    try {
+        // Create OpenGL texture (without error checking)
+        GLuint textureID = 0;
+        glGenTextures(1, &textureID);
 
-    // Setup texture parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        // Simple validity check
+        if (textureID == 0) {
+            m_LastErrorMessage = "Failed to create texture: Invalid ID";
+            return;
+        }
 
-    // Upload image data to texture
-    GLenum format = (rgbImage.channels() == 4) ? GL_RGBA : GL_RGB;
-    glTexImage2D(GL_TEXTURE_2D, 0, format, rgbImage.cols, rgbImage.rows, 0, format, GL_UNSIGNED_BYTE, rgbImage.data);
+        // Bind the texture
+        glBindTexture(GL_TEXTURE_2D, textureID);
 
-    // Store the texture ID as ImTextureID for ImGui
-    m_PreviewTexture = (ImTextureID)(intptr_t)textureID;
+        // Setup texture parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        // Check OpenGL limits for texture size (use a safe default value)
+        GLint maxTexSize = 4096; // Start with a reasonable default
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTexSize);
+
+        // Ensure we have a valid texture size limit (in case glGetIntegerv fails)
+        if (maxTexSize <= 0)
+            maxTexSize = 4096; // Fallback to a common safe size
+
+        // Resize if needed
+        if (rgbImage.cols > maxTexSize || rgbImage.rows > maxTexSize) {
+            double scale = (double)maxTexSize / max(rgbImage.cols, rgbImage.rows);
+            cv::resize(rgbImage, rgbImage, cv::Size(), scale, scale, cv::INTER_AREA);
+        }
+
+        // Upload image data to texture
+        GLenum format = (rgbImage.channels() == 4) ? GL_RGBA : GL_RGB;
+        glTexImage2D(GL_TEXTURE_2D, 0, format, rgbImage.cols, rgbImage.rows, 0, format, GL_UNSIGNED_BYTE, rgbImage.data);
+
+        // Store the texture ID (without error checking)
+        m_PreviewTexture = reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(textureID));
+    }
+    catch (...) {
+        m_LastErrorMessage = "Failed to create texture: OpenGL error";
+        return;
+    }
 }
 
 void InputNode::CleanupTexture()
 {
     if (m_PreviewTexture)
     {
-        GLuint textureID = (GLuint)(intptr_t)m_PreviewTexture;
-        glDeleteTextures(1, &textureID);
+        try {
+            GLuint textureID = static_cast<GLuint>(reinterpret_cast<uintptr_t>(m_PreviewTexture));
+            if (textureID > 0) {
+                glDeleteTextures(1, &textureID);
+            }
+        }
+        catch (...) {
+            // Catch any conversion errors
+        }
         m_PreviewTexture = nullptr;
     }
 }

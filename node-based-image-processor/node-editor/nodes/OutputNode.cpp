@@ -18,6 +18,12 @@ OutputNode::OutputNode(int id)
     AddInputPin("Image", PinType::Image);
 }
 
+OutputNode::~OutputNode()
+{
+    // Clean up OpenGL resources
+    CleanupTexture();
+}
+
 void OutputNode::Process()
 {
     // Get the image from the connected input node using ImageDataManager
@@ -70,10 +76,46 @@ void OutputNode::DrawNodeContent()
         const char* formats[] = { "JPEG", "PNG", "BMP" };
         ImGui::Combo("Format", &m_OutputFormat, formats, 3);
 
-        // Quality slider for JPEG
+        // Format-specific controls
         if (m_OutputFormat == 0) // JPEG
         {
             ImGui::SliderInt("Quality", &m_JpegQuality, 1, 100);
+            ImGui::SameLine();
+            ImGui::TextDisabled("(?)");
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetTooltip("Higher quality values result in less compression\n"
+                    "but larger file sizes. 95 is high quality.");
+            }
+        }
+        else if (m_OutputFormat == 1) // PNG
+        {
+            ImGui::SliderInt("Compression", &m_PngCompressionLevel, 0, 9);
+            ImGui::SameLine();
+            ImGui::TextDisabled("(?)");
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetTooltip("0: No compression, 9: Maximum compression\n"
+                    "Higher values result in smaller files but slower saving");
+            }
+        }
+
+        // Show save feedback if we have saved an image
+        if (!m_LastSavePath.empty() && m_SaveSuccess)
+        {
+            // Only show feedback for a few seconds
+            const int feedbackDuration = 5; // seconds
+            auto currentTime = std::time(nullptr);
+            if (currentTime - m_SaveTimestamp < feedbackDuration)
+            {
+                // Extract filename without using std::filesystem
+                std::string filename = m_LastSavePath;
+                size_t lastSlash = filename.find_last_of("/\\");
+                if (lastSlash != std::string::npos)
+                    filename = filename.substr(lastSlash + 1);
+
+                ImGui::TextColored(ImVec4(0.0f, 0.8f, 0.0f, 1.0f), "Saved: %s", filename.c_str());
+            }
         }
 
         // Save button
@@ -85,6 +127,7 @@ void OutputNode::DrawNodeContent()
     else
     {
         ImGui::Text("No input image");
+        ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "Connect an input to save an image");
     }
 }
 
@@ -104,11 +147,20 @@ bool OutputNode::SaveImage(const std::string& path)
     else if (m_OutputFormat == 1) // PNG
     {
         params.push_back(cv::IMWRITE_PNG_COMPRESSION);
-        params.push_back(3); // Medium compression
+        params.push_back(m_PngCompressionLevel);
     }
 
     // Try to save the image
-    return cv::imwrite(path, m_InputImage, params);
+    bool success = cv::imwrite(path, m_InputImage, params);
+
+    // Store result info for feedback
+    m_SaveSuccess = success;
+    if (success) {
+        m_LastSavePath = path;
+        m_SaveTimestamp = std::time(nullptr);
+    }
+
+    return success;
 }
 
 bool OutputNode::ShowSaveFileDialog()
@@ -172,42 +224,86 @@ void OutputNode::UpdatePreviewTexture()
     if (m_PreviewImage.empty())
         return;
 
+    // Verify we have valid image data
+    if (m_PreviewImage.data == nullptr)
+        return;
+
     // Convert image from OpenCV BGR format to RGB for OpenGL
     cv::Mat rgbImage;
-    if (m_PreviewImage.channels() == 3)
-        cv::cvtColor(m_PreviewImage, rgbImage, cv::COLOR_BGR2RGB);
-    else if (m_PreviewImage.channels() == 4)
-        cv::cvtColor(m_PreviewImage, rgbImage, cv::COLOR_BGRA2RGBA);
-    else if (m_PreviewImage.channels() == 1)
-        cv::cvtColor(m_PreviewImage, rgbImage, cv::COLOR_GRAY2RGB);
-    else
-        rgbImage = m_PreviewImage.clone(); // Just use as-is if format is unexpected
+    try {
+        if (m_PreviewImage.channels() == 3)
+            cv::cvtColor(m_PreviewImage, rgbImage, cv::COLOR_BGR2RGB);
+        else if (m_PreviewImage.channels() == 4)
+            cv::cvtColor(m_PreviewImage, rgbImage, cv::COLOR_BGRA2RGBA);
+        else if (m_PreviewImage.channels() == 1)
+            cv::cvtColor(m_PreviewImage, rgbImage, cv::COLOR_GRAY2RGB);
+        else
+            rgbImage = m_PreviewImage.clone(); // Just use as-is if format is unexpected
+    }
+    catch (const cv::Exception&) {
+        // Handle conversion error - just return without creating texture
+        return;
+    }
 
-    // Create OpenGL texture
-    GLuint textureID;
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID);
+    try {
+        // Create OpenGL texture (without error checking)
+        GLuint textureID = 0;
+        glGenTextures(1, &textureID);
 
-    // Setup texture parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        // Simple validity check
+        if (textureID == 0) {
+            return;
+        }
 
-    // Upload image data to texture
-    GLenum format = (rgbImage.channels() == 4) ? GL_RGBA : GL_RGB;
-    glTexImage2D(GL_TEXTURE_2D, 0, format, rgbImage.cols, rgbImage.rows, 0, format, GL_UNSIGNED_BYTE, rgbImage.data);
+        // Bind the texture
+        glBindTexture(GL_TEXTURE_2D, textureID);
 
-    // Store the texture ID as ImTextureID for ImGui
-    m_PreviewTexture = (ImTextureID)(intptr_t)textureID;
+        // Setup texture parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        // Check OpenGL limits for texture size (use a safe default value)
+        GLint maxTexSize = 4096; // Start with a reasonable default
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTexSize);
+
+        // Ensure we have a valid texture size limit (in case glGetIntegerv fails)
+        if (maxTexSize <= 0)
+            maxTexSize = 4096; // Fallback to a common safe size
+
+        // Resize if needed
+        if (rgbImage.cols > maxTexSize || rgbImage.rows > maxTexSize) {
+            double scale = (double)maxTexSize / max(rgbImage.cols, rgbImage.rows);
+            cv::resize(rgbImage, rgbImage, cv::Size(), scale, scale, cv::INTER_AREA);
+        }
+
+        // Upload image data to texture
+        GLenum format = (rgbImage.channels() == 4) ? GL_RGBA : GL_RGB;
+        glTexImage2D(GL_TEXTURE_2D, 0, format, rgbImage.cols, rgbImage.rows, 0, format, GL_UNSIGNED_BYTE, rgbImage.data);
+
+        // Store the texture ID (without error checking)
+        m_PreviewTexture = reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(textureID));
+    }
+    catch (...) {
+        // Silent failure - just don't update the texture
+        return;
+    }
 }
 
 void OutputNode::CleanupTexture()
 {
     if (m_PreviewTexture)
     {
-        GLuint textureID = (GLuint)(intptr_t)m_PreviewTexture;
-        glDeleteTextures(1, &textureID);
+        try {
+            GLuint textureID = static_cast<GLuint>(reinterpret_cast<uintptr_t>(m_PreviewTexture));
+            if (textureID > 0) {
+                glDeleteTextures(1, &textureID);
+            }
+        }
+        catch (...) {
+            // Catch any conversion errors
+        }
         m_PreviewTexture = nullptr;
     }
 }
@@ -216,12 +312,10 @@ cv::Mat OutputNode::GetConnectedImage()
 {
     // Get input pin
     if (Inputs.empty())
-        return cv::Mat(); // Return empty image if no inputs
+        return cv::Mat();
 
     auto& inputPin = Inputs[0];
 
-    // Check if pin is connected
-    // This will need to be updated when link management is fully implemented
-    // For now, we'll just return an empty image as a placeholder
-    return cv::Mat();
+    // Use ImageDataManager to get the image
+    return ImageDataManager::GetInstance().GetImageData(inputPin.ID);
 }

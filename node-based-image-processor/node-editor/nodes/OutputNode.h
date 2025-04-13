@@ -1,11 +1,12 @@
 #pragma once
 
 #include "../Node.h"
+#include <ctime>
 
 class OutputNode : public Node {
 public:
     OutputNode(int id);
-    ~OutputNode() override = default;
+    ~OutputNode() override;
 
     // Node interface implementation
     void Process() override;
@@ -23,6 +24,12 @@ private:
     // Save settings
     int m_OutputFormat = 0; // 0 = JPG, 1 = PNG, 2 = BMP
     int m_JpegQuality = 95;
+    int m_PngCompressionLevel = 3; // Default medium compression
+
+    // Save feedback
+    std::string m_LastSavePath;
+    std::time_t m_SaveTimestamp = 0;
+    bool m_SaveSuccess = false;
 
     // Display helpers
     void UpdatePreviewTexture();

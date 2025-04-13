@@ -5,7 +5,7 @@
 class InputNode : public Node {
 public:
     InputNode(int id);
-    ~InputNode() override = default;
+    ~InputNode() override;
 
     // Node interface implementation
     void Process() override;
@@ -30,6 +30,9 @@ private:
     std::string m_FilePath;
     std::string m_FileFormat;
     bool m_ImageLoaded = false;
+    std::string m_LastErrorMessage;
+    bool m_EnableAutoResize = false;
+    int m_MaxDimension = 2048;
 
     // For preview display
     ImTextureID m_PreviewTexture = nullptr;
