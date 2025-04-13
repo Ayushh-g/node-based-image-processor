@@ -2,17 +2,19 @@
 
 #include "../Node.h"
 
-class ImageInputNode : public Node {
+class InputNode : public Node {
 public:
-    ImageInputNode(int id);
-    ~ImageInputNode() override = default;
+    InputNode(int id);
+    ~InputNode() override = default;
 
     // Node interface implementation
     void Process() override;
     void DrawNodeContent() override;
+    void OnSelected() override;
 
     // Image loading functionality
     bool LoadImageFile(const std::string& path);  // Renamed from LoadImage to avoid Windows macro conflict
+    bool ShowOpenFileDialog();  // New method to show file dialog and load image
     const cv::Mat& GetImage() const { return m_Image; }
 
     // Get image metadata
@@ -24,6 +26,7 @@ public:
 
 private:
     cv::Mat m_Image;
+    // m_OutputImage is already defined in Node class
     std::string m_FilePath;
     std::string m_FileFormat;
     bool m_ImageLoaded = false;

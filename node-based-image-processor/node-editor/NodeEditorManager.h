@@ -54,7 +54,7 @@ public:
 
     // Selection management
     Node* GetSelectedNode();
-    //void ProcessSelection();
+    void ProcessSelection();
 
     // Get next available ID for nodes, links
     int GetNextId();

@@ -1,4 +1,5 @@
 #include "NodeEditorManager.h"
+#include "ImageDataManager.h"
 #include <queue>
 #include <set>
 #include <algorithm>
@@ -125,7 +126,7 @@ void NodeEditorManager::Render()
     HandleDeletion();
 
     // Process selection changes
-    //ProcessSelection();
+    ProcessSelection();
 
     ed::End();
     ed::SetCurrentEditor(nullptr);
@@ -317,48 +318,48 @@ Node* NodeEditorManager::GetSelectedNode()
     return nullptr;
 }
 
-//void NodeEditorManager::ProcessSelection()
-//{
-//    // Get current selection
-//    auto nodeCount = ed::GetSelectedObjectCount();
-//    if (nodeCount > 0)
-//    {
-//        std::vector<ed::NodeId> selectedNodes(nodeCount);
-//        auto count = ed::GetSelectedNodes(selectedNodes.data(), nodeCount);
-//
-//        if (count > 0)
-//        {
-//            // For simplicity, just use the first selected node
-//            auto selectedNodeId = selectedNodes[0];
-//
-//            // Check if selection changed
-//            if (selectedNodeId != m_SelectedNodeId)
-//            {
-//                // Notify previously selected node
-//                if (m_SelectedNodeId)
-//                {
-//                    if (auto node = FindNode(m_SelectedNodeId))
-//                        node->OnDeselected();
-//                }
-//
-//                // Update selection
-//                m_SelectedNodeId = selectedNodeId;
-//
-//                // Notify newly selected node
-//                if (auto node = FindNode(m_SelectedNodeId))
-//                    node->OnSelected();
-//            }
-//        }
-//    }
-//    else if (m_SelectedNodeId) // Nothing selected now
-//    {
-//        // Notify previously selected node
-//        if (auto node = FindNode(m_SelectedNodeId))
-//            node->OnDeselected();
-//
-//        m_SelectedNodeId = 0;
-//    }
-//}
+void NodeEditorManager::ProcessSelection()
+{
+    // Get current selection
+    auto nodeCount = ed::GetSelectedObjectCount();
+    if (nodeCount > 0)
+    {
+        std::vector<ed::NodeId> selectedNodes(nodeCount);
+        auto count = ed::GetSelectedNodes(selectedNodes.data(), nodeCount);
+
+        if (count > 0)
+        {
+            // For simplicity, just use the first selected node
+            auto selectedNodeId = selectedNodes[0];
+
+            // Check if selection changed
+            if (selectedNodeId != m_SelectedNodeId)
+            {
+                // Notify previously selected node
+                if (m_SelectedNodeId)
+                {
+                    if (auto node = FindNode(m_SelectedNodeId))
+                        node->OnDeselected();
+                }
+
+                // Update selection
+                m_SelectedNodeId = selectedNodeId;
+
+                // Notify newly selected node
+                if (auto node = FindNode(m_SelectedNodeId))
+                    node->OnSelected();
+            }
+        }
+    }
+    else if (m_SelectedNodeId) // Nothing selected now
+    {
+        // Notify previously selected node
+        if (auto node = FindNode(m_SelectedNodeId))
+            node->OnDeselected();
+
+        m_SelectedNodeId = 0;
+    }
+}
 
 bool NodeEditorManager::CalculateProcessingOrder()
 {
@@ -456,6 +457,9 @@ void NodeEditorManager::ProcessNodes()
     // Calculate processing order
     if (!CalculateProcessingOrder())
         return; // Failed to calculate order (likely due to cycles)
+
+    // Update connection map in the ImageDataManager
+    ImageDataManager::GetInstance().UpdateConnections(GetLinks());
 
     // Process nodes in order
     for (auto node : m_ProcessingQueue)

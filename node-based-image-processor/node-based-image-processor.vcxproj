@@ -151,6 +151,7 @@
     <ClCompile Include="..\externals\imgui\imgui_widgets.cpp" />
     <ClCompile Include="ImageEditorApp.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="node-editor\ImageDataManager.cpp" />
     <ClCompile Include="node-editor\Node.cpp" />
     <ClCompile Include="node-editor\NodeEditorManager.cpp" />
     <ClCompile Include="node-editor\nodes\InputNode.cpp" />
@@ -182,6 +183,7 @@
     <ClInclude Include="..\externals\imgui\imstb_truetype.h" />
     <ClInclude Include="..\externals\stb_image\stb_image.h" />
     <ClInclude Include="ImageEditorApp.h" />
+    <ClInclude Include="node-editor\ImageDataManager.h" />
     <ClInclude Include="node-editor\Node.h" />
     <ClInclude Include="node-editor\NodeEditorManager.h" />
     <ClInclude Include="node-editor\nodes\InputNode.h" />

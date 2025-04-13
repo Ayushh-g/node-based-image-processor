@@ -24,10 +24,6 @@ public:
     void ShowNodeEditor();
     void ShowPropertiesPanel();
 
-    // File operations
-    void OpenImage();
-    void SaveOutput();
-
     // Node management
     Node* CreateInputNode();
     Node* CreateOutputNode();
