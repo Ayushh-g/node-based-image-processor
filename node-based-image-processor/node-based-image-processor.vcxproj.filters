@@ -34,6 +34,12 @@
     <Filter Include="Header Files\stb_image">
       <UniqueIdentifier>{efe4a82d-095e-455b-ada7-1c8c1fcff500}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\nodes">
+      <UniqueIdentifier>{44fb1901-e38b-44d1-a9b4-00a003157b71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\nodes">
+      <UniqueIdentifier>{3c329024-8963-4b24-a8b4-bd8ea812398b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -98,6 +104,9 @@
     </ClCompile>
     <ClCompile Include="ImageEditorApp.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nodes\Node.cpp">
+      <Filter>Source Files\nodes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -175,6 +184,9 @@
     </ClInclude>
     <ClInclude Include="ImageEditorApp.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nodes\Node.h">
+      <Filter>Header Files\nodes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
