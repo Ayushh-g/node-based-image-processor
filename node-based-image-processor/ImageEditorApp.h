@@ -36,6 +36,9 @@ public:
     bool m_ShowImGuiDemoWindow = false;
 
     // Node editor
-    ed::EditorContext* m_Context = nullptr;
+    std::unique_ptr<NodeEditorManager> m_NodeEditor;
+
+    // Active elements
+    Node* m_SelectedNode = nullptr;
 
 };

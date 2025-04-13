@@ -120,6 +120,9 @@
     <ClCompile Include="node-editor\nodes\OutputNode.cpp">
       <Filter>Source Files\node-editor\nodes</Filter>
     </ClCompile>
+    <ClCompile Include="node-editor\NodeEditorManager.cpp">
+      <Filter>Source Files\node-editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\externals\imgui\imconfig.h">
@@ -205,6 +208,9 @@
     </ClInclude>
     <ClInclude Include="node-editor\nodes\OutputNode.h">
       <Filter>Header Files\node-editor\nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="node-editor\NodeEditorManager.h">
+      <Filter>Header Files\node-editor</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

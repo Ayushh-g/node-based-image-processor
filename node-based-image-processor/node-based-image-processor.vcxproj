@@ -152,6 +152,7 @@
     <ClCompile Include="ImageEditorApp.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="node-editor\Node.cpp" />
+    <ClCompile Include="node-editor\NodeEditorManager.cpp" />
     <ClCompile Include="node-editor\nodes\InputNode.cpp" />
     <ClCompile Include="node-editor\nodes\OutputNode.cpp" />
   </ItemGroup>
@@ -182,6 +183,7 @@
     <ClInclude Include="..\externals\stb_image\stb_image.h" />
     <ClInclude Include="ImageEditorApp.h" />
     <ClInclude Include="node-editor\Node.h" />
+    <ClInclude Include="node-editor\NodeEditorManager.h" />
     <ClInclude Include="node-editor\nodes\InputNode.h" />
     <ClInclude Include="node-editor\nodes\OutputNode.h" />
   </ItemGroup>

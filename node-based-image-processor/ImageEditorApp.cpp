@@ -1,14 +1,13 @@
 #include "ImageEditorApp.h"
 #include <vector>
 #include <string>
-
+#include "node-editor/NodeEditorManager.h"
 
 void ImageEditorApp::OnStart()
 {
     // Initialize the node editor manager
-    ed::Config config;
-    config.SettingsFile = "temppp.json";
-    m_Context = ed::CreateEditor(&config);
+    m_NodeEditor = std::make_unique<NodeEditorManager>();
+    m_NodeEditor->Initialize();
 }
 
 void ImageEditorApp::OnFrame(float deltaTime)
@@ -36,7 +35,8 @@ void ImageEditorApp::OnFrame(float deltaTime)
 void ImageEditorApp::OnStop()
 {
     // Cleanup resources
-    ed::DestroyEditor(m_Context);
+    if (m_NodeEditor)
+        m_NodeEditor->Shutdown();
 }
 
 void ImageEditorApp::ShowMainMenuBar()
@@ -45,18 +45,20 @@ void ImageEditorApp::ShowMainMenuBar()
     {
         if (ImGui::BeginMenu("File"))
         {
-            if (ImGui::MenuItem("New Graph"))
+            if (ImGui::MenuItem("New Graph", "Ctrl+N"))
             {
                 // Reset node editor
-                ed::DestroyEditor(m_Context);
-                ed::Config config;
-                config.SettingsFile = "Widgets.json";
-                m_Context = ed::CreateEditor(&config);
+                m_NodeEditor->Shutdown();
+                m_NodeEditor->Initialize();
             }
-            if (ImGui::MenuItem("Open Image"))  {}
-            if (ImGui::MenuItem("Save Output")) {}
+
             ImGui::Separator();
-            if (ImGui::MenuItem("Exit")) Close();
+
+            if (ImGui::MenuItem("Exit", "Alt+F4"))
+            {
+                Close();
+            }
+
             ImGui::EndMenu();
         }
 
@@ -87,31 +89,15 @@ void ImageEditorApp::ShowMainMenuBar()
 
 void ImageEditorApp::ShowNodeEditor()
 {
-    if (!m_Context)
-        return;
+    ImGui::BeginChild("NodeEditorRegion", ImVec2(0, 0), true);
 
-    auto& io = ImGui::GetIO();
+    // We'll let the node editor manager render the actual node editor
+    if (m_NodeEditor)
+    {
+        m_NodeEditor->Render();
+    }
 
-    ImGui::Text("FPS: %.2f (%.2gms)", io.Framerate, io.Framerate ? 1000.0f / io.Framerate : 0.0f);
-
-    ImGui::Separator();
-
-    ed::SetCurrentEditor(m_Context);
-    ed::Begin("My Editor", ImVec2(0.0, 0.0f));
-    int uniqueId = 1;
-    // Start drawing nodes.
-    ed::BeginNode(uniqueId++);
-    ImGui::Text("Node A");
-    ed::BeginPin(uniqueId++, ed::PinKind::Input);
-    ImGui::Text("-> In");
-    ed::EndPin();
-    ImGui::SameLine();
-    ed::BeginPin(uniqueId++, ed::PinKind::Output);
-    ImGui::Text("Out ->");
-    ed::EndPin();
-    ed::EndNode();
-    ed::End();
-    ed::SetCurrentEditor(nullptr);
+    ImGui::EndChild();
 
 
 }
@@ -123,9 +109,22 @@ void ImageEditorApp::ShowPropertiesPanel()
     ImGui::Separator();
 
     // Get selected node from the node editor
-    if (m_Context)
+    if (m_NodeEditor)
     {
-        ImGui::Text("No node selected");
+        Node* selectedNode = m_NodeEditor->GetSelectedNode();
+        if (selectedNode)
+        {
+            ImGui::Text("Selected Node: %s", selectedNode->Name.c_str());
+            ImGui::Separator();
+
+            // Depending on the node type, we might want to show specific properties
+            // but most of this is handled directly by the node's DrawNodeContent method
+
+        }
+        else
+        {
+            ImGui::Text("No node selected");
+        }
     }
 
     ImGui::EndChild();
