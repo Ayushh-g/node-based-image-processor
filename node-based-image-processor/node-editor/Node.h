@@ -54,8 +54,8 @@ public:
     // Virtual methods for node operations
     virtual void Process() = 0;
     virtual void DrawNodeContent() = 0;
-    virtual void OnSelected();
-    virtual void OnDeselected();
+    //virtual void OnSelected();
+    //virtual void OnDeselected();
 
     ed::NodeId ID;
     std::string Name;

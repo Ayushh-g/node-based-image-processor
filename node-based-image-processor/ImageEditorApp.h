@@ -4,6 +4,7 @@
 #include <imgui.h>
 #include <imgui_node_editor.h>
 #include <memory>
+#include "node-editor/NodeEditorManager.h" // Include the full header instead of forward declaration
 
 namespace ed = ax::NodeEditor;
 
@@ -24,12 +25,13 @@ public:
     void ShowPropertiesPanel();
 
     // File operations
-    //void OpenImage();
-    //void SaveOutput();
+    void OpenImage();
+    void SaveOutput();
 
     // Node management
-    //Node* CreateInputNode();
-    //Node* CreateOutputNode();
+    Node* CreateInputNode();
+    Node* CreateOutputNode();
+    void CreateProcessingNode(int nodeType);
 
     // Application state
     bool m_ShowDemoWindow = false;
@@ -40,5 +42,4 @@ public:
 
     // Active elements
     Node* m_SelectedNode = nullptr;
-
 };

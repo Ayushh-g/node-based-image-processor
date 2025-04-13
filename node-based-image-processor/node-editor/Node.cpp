@@ -1,5 +1,7 @@
 #include "Node.h"
-
+#include "NodeEditorManager.h"
+#include "nodes/InputNode.h"
+#include "nodes/OutputNode.h"
 
 // Pin implementation
 Pin::Pin(int id, const char* name, PinType type, PinKind kind)
@@ -86,5 +88,14 @@ Pin* Node::GetOutputPin(int index)
 // Node factory - this will be expanded later with more node types
 Node* NodeFactory::CreateNode(int nodeType, int id)
 {
-    
+    switch (nodeType)
+    {
+    case 0:  // Image Input Node
+        return new ImageInputNode(id);
+
+    case 1:  // Output Node
+        return new OutputNode(id);
+    default:
+        return nullptr;
+    }
 }
