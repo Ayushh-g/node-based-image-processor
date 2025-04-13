@@ -2,6 +2,7 @@
 #include "../ImageDataManager.h"
 #include <imgui.h>
 #include <filesystem>
+#include <../../ImageEditorApp.h>
 
 // Windows headers for file dialog
 #include <Windows.h>
@@ -10,6 +11,9 @@
 // OpenGL headers for texture handling
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+// External function to get application instance
+extern class ImageEditorApp* GetApplicationInstance();
 
 OutputNode::OutputNode(int id)
     : Node(id, "Output", ImColor(128, 195, 248))
@@ -228,15 +232,15 @@ void OutputNode::UpdatePreviewTexture()
     if (m_PreviewImage.data == nullptr)
         return;
 
-    // Convert image from OpenCV BGR format to RGB for OpenGL
+    // Convert image from OpenCV BGR format to RGBA for texture creation
     cv::Mat rgbImage;
     try {
         if (m_PreviewImage.channels() == 3)
-            cv::cvtColor(m_PreviewImage, rgbImage, cv::COLOR_BGR2RGB);
+            cv::cvtColor(m_PreviewImage, rgbImage, cv::COLOR_BGR2RGBA);
         else if (m_PreviewImage.channels() == 4)
             cv::cvtColor(m_PreviewImage, rgbImage, cv::COLOR_BGRA2RGBA);
         else if (m_PreviewImage.channels() == 1)
-            cv::cvtColor(m_PreviewImage, rgbImage, cv::COLOR_GRAY2RGB);
+            cv::cvtColor(m_PreviewImage, rgbImage, cv::COLOR_GRAY2RGBA);
         else
             rgbImage = m_PreviewImage.clone(); // Just use as-is if format is unexpected
     }
@@ -246,44 +250,10 @@ void OutputNode::UpdatePreviewTexture()
     }
 
     try {
-        // Create OpenGL texture (without error checking)
-        GLuint textureID = 0;
-        glGenTextures(1, &textureID);
-
-        // Simple validity check
-        if (textureID == 0) {
-            return;
+        // Use the Application's texture creation API
+        if (ImageEditorApp* app = GetApplicationInstance()) {
+            m_PreviewTexture = app->CreateTexture(rgbImage.data, rgbImage.cols, rgbImage.rows);
         }
-
-        // Bind the texture
-        glBindTexture(GL_TEXTURE_2D, textureID);
-
-        // Setup texture parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-        // Check OpenGL limits for texture size (use a safe default value)
-        GLint maxTexSize = 4096; // Start with a reasonable default
-        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTexSize);
-
-        // Ensure we have a valid texture size limit (in case glGetIntegerv fails)
-        if (maxTexSize <= 0)
-            maxTexSize = 4096; // Fallback to a common safe size
-
-        // Resize if needed
-        if (rgbImage.cols > maxTexSize || rgbImage.rows > maxTexSize) {
-            double scale = (double)maxTexSize / max(rgbImage.cols, rgbImage.rows);
-            cv::resize(rgbImage, rgbImage, cv::Size(), scale, scale, cv::INTER_AREA);
-        }
-
-        // Upload image data to texture
-        GLenum format = (rgbImage.channels() == 4) ? GL_RGBA : GL_RGB;
-        glTexImage2D(GL_TEXTURE_2D, 0, format, rgbImage.cols, rgbImage.rows, 0, format, GL_UNSIGNED_BYTE, rgbImage.data);
-
-        // Store the texture ID (without error checking)
-        m_PreviewTexture = reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(textureID));
     }
     catch (...) {
         // Silent failure - just don't update the texture
@@ -296,13 +266,13 @@ void OutputNode::CleanupTexture()
     if (m_PreviewTexture)
     {
         try {
-            GLuint textureID = static_cast<GLuint>(reinterpret_cast<uintptr_t>(m_PreviewTexture));
-            if (textureID > 0) {
-                glDeleteTextures(1, &textureID);
+            // Use the Application's texture destruction API through ImageEditorApp instance
+            if (ImageEditorApp* app = GetApplicationInstance()) {
+                app->DestroyTexture(m_PreviewTexture);
             }
         }
         catch (...) {
-            // Catch any conversion errors
+            // Silent catch for any errors during cleanup
         }
         m_PreviewTexture = nullptr;
     }

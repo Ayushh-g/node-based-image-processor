@@ -3,6 +3,8 @@
 #include <imgui.h>
 #include <algorithm>
 #include <string>
+#include <../../ImageEditorApp.h>
+
 
 // Windows headers for file dialog
 #include <Windows.h>
@@ -11,7 +13,6 @@
 // OpenGL headers for texture handling
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-
 
 InputNode::InputNode(int id)
     : Node(id, "Image Input", ImColor(255, 128, 128))
@@ -215,15 +216,15 @@ void InputNode::UpdatePreviewTexture()
         return;
     }
 
-    // Convert image from OpenCV BGR format to RGB for OpenGL
+    // Convert image from OpenCV BGR format to RGB for texture creation
     cv::Mat rgbImage;
     try {
         if (m_Image.channels() == 3)
-            cv::cvtColor(m_Image, rgbImage, cv::COLOR_BGR2RGB);
+            cv::cvtColor(m_Image, rgbImage, cv::COLOR_BGR2RGBA); // Convert to RGBA
         else if (m_Image.channels() == 4)
             cv::cvtColor(m_Image, rgbImage, cv::COLOR_BGRA2RGBA);
         else if (m_Image.channels() == 1)
-            cv::cvtColor(m_Image, rgbImage, cv::COLOR_GRAY2RGB);
+            cv::cvtColor(m_Image, rgbImage, cv::COLOR_GRAY2RGBA);
         else
             rgbImage = m_Image.clone(); // Just use as-is if format is unexpected
     }
@@ -233,49 +234,24 @@ void InputNode::UpdatePreviewTexture()
     }
 
     try {
-        // Create OpenGL texture (without error checking)
-        GLuint textureID = 0;
-        glGenTextures(1, &textureID);
-
-        // Simple validity check
-        if (textureID == 0) {
-            m_LastErrorMessage = "Failed to create texture: Invalid ID";
-            return;
+        // Get the application instance from the node editor manager
+        extern class ImageEditorApp* GetApplicationInstance();
+        if (ImageEditorApp* app = GetApplicationInstance()) {
+            // Use the Application's texture creation API
+            m_PreviewTexture = app->CreateTexture(rgbImage.data, rgbImage.cols, rgbImage.rows);
+            if (!m_PreviewTexture) {
+                m_LastErrorMessage = "Failed to create texture";
+            }
         }
-
-        // Bind the texture
-        glBindTexture(GL_TEXTURE_2D, textureID);
-
-        // Setup texture parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-        // Check OpenGL limits for texture size (use a safe default value)
-        GLint maxTexSize = 4096; // Start with a reasonable default
-        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTexSize);
-
-        // Ensure we have a valid texture size limit (in case glGetIntegerv fails)
-        if (maxTexSize <= 0)
-            maxTexSize = 4096; // Fallback to a common safe size
-
-        // Resize if needed
-        if (rgbImage.cols > maxTexSize || rgbImage.rows > maxTexSize) {
-            double scale = (double)maxTexSize / max(rgbImage.cols, rgbImage.rows);
-            cv::resize(rgbImage, rgbImage, cv::Size(), scale, scale, cv::INTER_AREA);
+        else {
+            m_LastErrorMessage = "Application instance not available";
         }
-
-        // Upload image data to texture
-        GLenum format = (rgbImage.channels() == 4) ? GL_RGBA : GL_RGB;
-        glTexImage2D(GL_TEXTURE_2D, 0, format, rgbImage.cols, rgbImage.rows, 0, format, GL_UNSIGNED_BYTE, rgbImage.data);
-
-        // Store the texture ID (without error checking)
-        m_PreviewTexture = reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(textureID));
+    }
+    catch (const std::exception& e) {
+        m_LastErrorMessage = "Texture creation error: " + std::string(e.what());
     }
     catch (...) {
-        m_LastErrorMessage = "Failed to create texture: OpenGL error";
-        return;
+        m_LastErrorMessage = "Unknown texture creation error";
     }
 }
 
@@ -284,13 +260,14 @@ void InputNode::CleanupTexture()
     if (m_PreviewTexture)
     {
         try {
-            GLuint textureID = static_cast<GLuint>(reinterpret_cast<uintptr_t>(m_PreviewTexture));
-            if (textureID > 0) {
-                glDeleteTextures(1, &textureID);
+            // Use the same method to get the application instance as in UpdatePreviewTexture
+            extern class ImageEditorApp* GetApplicationInstance();
+            if (ImageEditorApp* app = GetApplicationInstance()) {
+                app->DestroyTexture(m_PreviewTexture);
             }
         }
         catch (...) {
-            // Catch any conversion errors
+            // Silent catch for any errors during cleanup
         }
         m_PreviewTexture = nullptr;
     }
