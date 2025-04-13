@@ -34,11 +34,17 @@
     <Filter Include="Header Files\stb_image">
       <UniqueIdentifier>{efe4a82d-095e-455b-ada7-1c8c1fcff500}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\nodes">
+    <Filter Include="Header Files\node-editor">
+      <UniqueIdentifier>{3c329024-8963-4b24-a8b4-bd8ea812398b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\node-editor">
       <UniqueIdentifier>{44fb1901-e38b-44d1-a9b4-00a003157b71}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\nodes">
-      <UniqueIdentifier>{3c329024-8963-4b24-a8b4-bd8ea812398b}</UniqueIdentifier>
+    <Filter Include="Source Files\node-editor\nodes">
+      <UniqueIdentifier>{f0fd881f-c47e-4db8-a1ca-b5b3bd5a1bb7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\node-editor\nodes">
+      <UniqueIdentifier>{07843b8b-045f-453d-88bf-20164ba5129c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -105,8 +111,14 @@
     <ClCompile Include="ImageEditorApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="nodes\Node.cpp">
-      <Filter>Source Files\nodes</Filter>
+    <ClCompile Include="node-editor\Node.cpp">
+      <Filter>Source Files\node-editor</Filter>
+    </ClCompile>
+    <ClCompile Include="node-editor\nodes\InputNode.cpp">
+      <Filter>Source Files\node-editor\nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="node-editor\nodes\OutputNode.cpp">
+      <Filter>Source Files\node-editor\nodes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -185,8 +197,14 @@
     <ClInclude Include="ImageEditorApp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="nodes\Node.h">
-      <Filter>Header Files\nodes</Filter>
+    <ClInclude Include="node-editor\Node.h">
+      <Filter>Header Files\node-editor</Filter>
+    </ClInclude>
+    <ClInclude Include="node-editor\nodes\InputNode.h">
+      <Filter>Header Files\node-editor\nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="node-editor\nodes\OutputNode.h">
+      <Filter>Header Files\node-editor\nodes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

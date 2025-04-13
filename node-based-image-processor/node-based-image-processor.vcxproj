@@ -151,7 +151,9 @@
     <ClCompile Include="..\externals\imgui\imgui_widgets.cpp" />
     <ClCompile Include="ImageEditorApp.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="nodes\Node.cpp" />
+    <ClCompile Include="node-editor\Node.cpp" />
+    <ClCompile Include="node-editor\nodes\InputNode.cpp" />
+    <ClCompile Include="node-editor\nodes\OutputNode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\externals\application\application.h" />
@@ -179,7 +181,9 @@
     <ClInclude Include="..\externals\imgui\imstb_truetype.h" />
     <ClInclude Include="..\externals\stb_image\stb_image.h" />
     <ClInclude Include="ImageEditorApp.h" />
-    <ClInclude Include="nodes\Node.h" />
+    <ClInclude Include="node-editor\Node.h" />
+    <ClInclude Include="node-editor\nodes\InputNode.h" />
+    <ClInclude Include="node-editor\nodes\OutputNode.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

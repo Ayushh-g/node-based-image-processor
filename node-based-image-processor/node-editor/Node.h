@@ -1,14 +1,16 @@
 #pragma once
 
 #include <imgui_node_editor.h>
+#include <opencv2/opencv.hpp>
 #include <string>
 #include <vector>
 #include <memory>
 
 namespace ed = ax::NodeEditor;
 
-// Forward declarations 
+// Forward declarations
 class Pin;
+class NodeEditorManager;
 
 // Enum for pin types
 enum class PinType {
@@ -39,21 +41,21 @@ public:
     PinType Type;
     PinKind Kind;
     
-    bool IsConnected() const; // const so that it can't change Pin's members
+    bool IsConnected() const; // Checks with NodeEditorManager if this pin is connected
     ImColor GetColor() const;
 };
 
 // Base Node class
 class Node {
-	// abstract class, no object of this class will be made but will use derived classes through node*
 public:
     Node(int id, const char* name, ImColor color = ImColor(255, 255, 255));
     virtual ~Node() = default;
 
     // Virtual methods for node operations
-	virtual void Process() = 0; // pure virtual function creates abstract class
+    virtual void Process() = 0;
     virtual void DrawNodeContent() = 0;
-
+    virtual void OnSelected();
+    virtual void OnDeselected();
 
     ed::NodeId ID;
     std::string Name;
@@ -72,13 +74,9 @@ public:
     Pin* GetInputPin(int index);
     Pin* GetOutputPin(int index);
 
-    // Setup connections
-    void AddLink(ed::LinkId id, Pin* output, Pin* input);
-    void RemoveLink(ed::LinkId id);
-
 protected:
-
-    std::vector<ed::LinkId> m_Links;
+    // Cache for processed image data
+    cv::Mat m_OutputImage;
 };
 
 // Factory class to create specific node types

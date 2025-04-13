@@ -83,31 +83,6 @@ Pin* Node::GetOutputPin(int index)
     return nullptr;
 }
 
-void Node::AddLink(ed::LinkId id, Pin* output, Pin* input)
-{
-    // Store the link ID
-    m_Links.push_back(id);
-    
-    // Mark node as dirty to trigger reprocessing
-    Dirty = true;
-}
-
-void Node::RemoveLink(ed::LinkId id)
-{
-    // Remove link ID from the list
-    for (auto it = m_Links.begin(); it != m_Links.end(); ++it)
-    {
-        if (*it == id)
-        {
-            m_Links.erase(it);
-            break;
-        }
-    }
-    
-    // Mark node as dirty to trigger reprocessing
-    Dirty = true;
-}
-
 // Node factory - this will be expanded later with more node types
 Node* NodeFactory::CreateNode(int nodeType, int id)
 {
