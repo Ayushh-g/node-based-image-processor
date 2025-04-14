@@ -130,6 +130,10 @@ void ImageEditorApp::ShowMainMenuBar()
                 {
                     CreateProcessingNode(6);
                 }
+                if (ImGui::MenuItem("Blend"))
+                {
+                    CreateProcessingNode(7);
+                }
 
                 ImGui::EndMenu();
             }

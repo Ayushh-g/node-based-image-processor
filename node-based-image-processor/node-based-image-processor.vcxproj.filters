@@ -141,6 +141,9 @@
     <ClCompile Include="node-editor\nodes\ThresholdNode.cpp">
       <Filter>Source Files\node-editor\nodes</Filter>
     </ClCompile>
+    <ClCompile Include="node-editor\nodes\BlendNode.cpp">
+      <Filter>Source Files\node-editor\nodes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\externals\imgui\imconfig.h">
@@ -246,6 +249,9 @@
       <Filter>Header Files\node-editor\nodes</Filter>
     </ClInclude>
     <ClInclude Include="node-editor\nodes\ThresholdNode.h">
+      <Filter>Header Files\node-editor\nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="node-editor\nodes\BlendNode.h">
       <Filter>Header Files\node-editor\nodes</Filter>
     </ClInclude>
   </ItemGroup>

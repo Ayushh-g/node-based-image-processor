@@ -6,6 +6,7 @@
 #include "nodes/ColorChannelSplitterNode.h"
 #include "nodes/BlurNode.h"
 #include "nodes/ThresholdNode.h"
+#include "nodes/BlendNode.h"
 #include "nodes/EdgeDetectionNode.h"
 
 // Pin implementation
@@ -130,6 +131,8 @@ Node* NodeFactory::CreateNode(int nodeType, int id)
     case 6:  // Edge Detection Node
         return new EdgeDetectionNode(id);
 
+	case 7:  // Blend Node
+		return new BlendNode(id);
         // Additional node types will be added as they are implemented
 
     default:
