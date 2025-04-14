@@ -35,6 +35,7 @@ public:
 
     void Render();
     void ProcessNodes();
+    void SyncAllNodes();
 
     // Node management
     Node* CreateNode(int nodeType, ImVec2 position = ImVec2(0, 0));

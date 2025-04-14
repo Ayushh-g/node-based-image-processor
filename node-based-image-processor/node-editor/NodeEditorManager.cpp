@@ -55,6 +55,23 @@ void NodeEditorManager::Render()
 
     ed::SetCurrentEditor(m_EditorContext);
 
+    // Add a sync button in the canvas
+    ImGui::SetCursorPos(ImVec2(10, 10)); // Position in top-left corner
+    if (ImGui::Button("Sync Nodes"))
+    {
+        SyncAllNodes();
+    }
+    ImGui::SameLine();
+    ImGui::TextDisabled("(?)");
+    if (ImGui::IsItemHovered())
+    {
+        ImGui::BeginTooltip();
+        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+        ImGui::TextUnformatted("Update all nodes to ensure all previews and outputs are current.");
+        ImGui::PopTextWrapPos();
+        ImGui::EndTooltip();
+    }
+
     // Begin the node editor canvas
     ed::Begin("Image Processing Editor");
 
@@ -470,6 +487,18 @@ void NodeEditorManager::ProcessNodes()
             node->Dirty = false;
         }
     }
+}
+
+void NodeEditorManager::SyncAllNodes()
+{
+    // Mark all nodes as dirty
+    for (auto& node : m_Nodes)
+    {
+        node->Dirty = true;
+    }
+
+    // Process all nodes
+    ProcessNodes();
 }
 
 void NodeEditorManager::HandleCreation()
