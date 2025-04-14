@@ -10,10 +10,6 @@
 #include <Windows.h>
 #include <commdlg.h>
 
-// OpenGL headers for texture handling
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
 InputNode::InputNode(int id)
     : Node(id, "Image Input", ImColor(255, 128, 128))
 {
@@ -234,9 +230,8 @@ void InputNode::UpdatePreviewTexture()
     }
 
     try {
-        // Get the application instance from the node editor manager
-        extern class ImageEditorApp* GetApplicationInstance();
-        if (ImageEditorApp* app = GetApplicationInstance()) {
+        // Get the application instance using GetInstance()
+        if (ImageEditorApp* app = ImageEditorApp::GetInstance()) {
             // Use the Application's texture creation API
             m_PreviewTexture = app->CreateTexture(rgbImage.data, rgbImage.cols, rgbImage.rows);
             if (!m_PreviewTexture) {
@@ -260,9 +255,8 @@ void InputNode::CleanupTexture()
     if (m_PreviewTexture)
     {
         try {
-            // Use the same method to get the application instance as in UpdatePreviewTexture
-            extern class ImageEditorApp* GetApplicationInstance();
-            if (ImageEditorApp* app = GetApplicationInstance()) {
+            // Use GetInstance() to get the application instance
+            if (ImageEditorApp* app = ImageEditorApp::GetInstance()) {
                 app->DestroyTexture(m_PreviewTexture);
             }
         }

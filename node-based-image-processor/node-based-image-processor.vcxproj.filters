@@ -132,6 +132,12 @@
     <ClCompile Include="node-editor\nodes\ColorChannelSplitterNode.cpp">
       <Filter>Source Files\node-editor\nodes</Filter>
     </ClCompile>
+    <ClCompile Include="node-editor\nodes\BlurNode.cpp">
+      <Filter>Source Files\node-editor\nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="node-editor\nodes\EdgeDetectionNode.cpp">
+      <Filter>Source Files\node-editor\nodes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\externals\imgui\imconfig.h">
@@ -228,6 +234,12 @@
       <Filter>Header Files\node-editor\nodes</Filter>
     </ClInclude>
     <ClInclude Include="node-editor\nodes\ColorChannelSplitterNode.h">
+      <Filter>Header Files\node-editor\nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="node-editor\nodes\BlurNode.h">
+      <Filter>Header Files\node-editor\nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="node-editor\nodes\EdgeDetectionNode.h">
       <Filter>Header Files\node-editor\nodes</Filter>
     </ClInclude>
   </ItemGroup>

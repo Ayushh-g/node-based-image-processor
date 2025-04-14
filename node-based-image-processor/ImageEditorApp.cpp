@@ -4,6 +4,29 @@
 #include <vector>
 #include <string>
 
+// Initialize the static instance pointer
+ImageEditorApp* ImageEditorApp::s_Instance = nullptr;
+
+// Singleton access method implementation
+ImageEditorApp* ImageEditorApp::GetInstance()
+{
+    return s_Instance;
+}
+
+// Constructor
+ImageEditorApp::ImageEditorApp() : Application("Node-Based Image Editor")
+{
+    // Set the singleton instance
+    s_Instance = this;
+}
+
+// Destructor
+ImageEditorApp::~ImageEditorApp()
+{
+    // Clear the singleton instance if this is the current instance
+    if (s_Instance == this)
+        s_Instance = nullptr;
+}
 
 void ImageEditorApp::OnStart()
 {
@@ -69,7 +92,7 @@ void ImageEditorApp::ShowMainMenuBar()
 
         if (ImGui::BeginMenu("Create"))
         {
-            if (ImGui::MenuItem("Input Node"))
+            if (ImGui::MenuItem("Image Input Node"))
             {
                 CreateInputNode();
             }

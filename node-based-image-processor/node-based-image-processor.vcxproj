@@ -154,8 +154,10 @@
     <ClCompile Include="node-editor\ImageDataManager.cpp" />
     <ClCompile Include="node-editor\Node.cpp" />
     <ClCompile Include="node-editor\NodeEditorManager.cpp" />
+    <ClCompile Include="node-editor\nodes\BlurNode.cpp" />
     <ClCompile Include="node-editor\nodes\BrightnessContrastNode.cpp" />
     <ClCompile Include="node-editor\nodes\ColorChannelSplitterNode.cpp" />
+    <ClCompile Include="node-editor\nodes\EdgeDetectionNode.cpp" />
     <ClCompile Include="node-editor\nodes\InputNode.cpp" />
     <ClCompile Include="node-editor\nodes\OutputNode.cpp" />
   </ItemGroup>
@@ -188,8 +190,10 @@
     <ClInclude Include="node-editor\ImageDataManager.h" />
     <ClInclude Include="node-editor\Node.h" />
     <ClInclude Include="node-editor\NodeEditorManager.h" />
+    <ClInclude Include="node-editor\nodes\BlurNode.h" />
     <ClInclude Include="node-editor\nodes\BrightnessContrastNode.h" />
     <ClInclude Include="node-editor\nodes\ColorChannelSplitterNode.h" />
+    <ClInclude Include="node-editor\nodes\EdgeDetectionNode.h" />
     <ClInclude Include="node-editor\nodes\InputNode.h" />
     <ClInclude Include="node-editor\nodes\OutputNode.h" />
   </ItemGroup>

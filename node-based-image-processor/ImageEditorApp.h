@@ -12,8 +12,16 @@ class Node; // We can keep this forward declaration
 
 class ImageEditorApp : public Application
 {
+private:
+    // Singleton instance pointer
+    static ImageEditorApp* s_Instance;
+
 public:
-    ImageEditorApp() : Application("Node-Based Image Editor") {}
+    // Singleton access method
+    static ImageEditorApp* GetInstance();
+
+    ImageEditorApp();
+    ~ImageEditorApp();
 
     void OnStart() override;
     void OnFrame(float deltaTime) override;

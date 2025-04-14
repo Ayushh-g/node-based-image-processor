@@ -8,13 +8,6 @@
 #include <Windows.h>
 #include <commdlg.h>
 
-// OpenGL headers for texture handling
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
-// External function to get application instance
-extern class ImageEditorApp* GetApplicationInstance();
-
 OutputNode::OutputNode(int id)
     : Node(id, "Output", ImColor(128, 195, 248))
 {
@@ -251,7 +244,7 @@ void OutputNode::UpdatePreviewTexture()
 
     try {
         // Use the Application's texture creation API
-        if (ImageEditorApp* app = GetApplicationInstance()) {
+        if (ImageEditorApp* app = ImageEditorApp::GetInstance()) {
             m_PreviewTexture = app->CreateTexture(rgbImage.data, rgbImage.cols, rgbImage.rows);
         }
     }
@@ -267,7 +260,7 @@ void OutputNode::CleanupTexture()
     {
         try {
             // Use the Application's texture destruction API through ImageEditorApp instance
-            if (ImageEditorApp* app = GetApplicationInstance()) {
+            if (ImageEditorApp* app = ImageEditorApp::GetInstance()) {
                 app->DestroyTexture(m_PreviewTexture);
             }
         }
