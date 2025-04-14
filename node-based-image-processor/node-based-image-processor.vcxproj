@@ -160,6 +160,7 @@
     <ClCompile Include="node-editor\nodes\EdgeDetectionNode.cpp" />
     <ClCompile Include="node-editor\nodes\InputNode.cpp" />
     <ClCompile Include="node-editor\nodes\OutputNode.cpp" />
+    <ClCompile Include="node-editor\nodes\ThresholdNode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\externals\application\application.h" />
@@ -196,6 +197,7 @@
     <ClInclude Include="node-editor\nodes\EdgeDetectionNode.h" />
     <ClInclude Include="node-editor\nodes\InputNode.h" />
     <ClInclude Include="node-editor\nodes\OutputNode.h" />
+    <ClInclude Include="node-editor\nodes\ThresholdNode.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

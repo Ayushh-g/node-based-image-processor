@@ -1,6 +1,6 @@
 #include "BrightnessContrastNode.h"
 #include "../ImageDataManager.h"
-#include "../../ImageEditorApp.h"
+#include "../../ImageEditorApp.h"  // Added this include to access the app instance
 #include <imgui.h>
 #include <opencv2/imgproc.hpp>
 
@@ -112,21 +112,24 @@ void BrightnessContrastNode::UpdatePreviewTexture()
     // Clean up any existing texture
     CleanupTexture();
 
-    // Get the current output image
-    cv::Mat outputImage = ImageDataManager::GetInstance().GetImageData(Outputs[0].ID);
-    if (outputImage.empty())
+    // Use the local output image
+    if (m_OutputImage.empty())
+        return;
+
+    // Verify we have valid image data
+    if (m_OutputImage.data == nullptr)
         return;
 
     // Convert image from OpenCV BGR format to RGB for OpenGL
     cv::Mat rgbImage;
-    if (outputImage.channels() == 3)
-        cv::cvtColor(outputImage, rgbImage, cv::COLOR_BGR2RGB);
-    else if (outputImage.channels() == 4)
-        cv::cvtColor(outputImage, rgbImage, cv::COLOR_BGRA2RGBA);
-    else if (outputImage.channels() == 1)
-        cv::cvtColor(outputImage, rgbImage, cv::COLOR_GRAY2RGB);
+    if (m_OutputImage.channels() == 3)
+        cv::cvtColor(m_OutputImage, rgbImage, cv::COLOR_BGR2RGBA);
+    else if (m_OutputImage.channels() == 4)
+        cv::cvtColor(m_OutputImage, rgbImage, cv::COLOR_BGRA2RGBA);
+    else if (m_OutputImage.channels() == 1)
+        cv::cvtColor(m_OutputImage, rgbImage, cv::COLOR_GRAY2RGBA);
     else
-        rgbImage = outputImage.clone(); // Just use as-is if format is unexpected
+        rgbImage = m_OutputImage.clone(); // Just use as-is if format is unexpected
 
     // Use ImageEditorApp singleton to create texture instead of direct OpenGL calls
     if (ImageEditorApp* app = ImageEditorApp::GetInstance())
