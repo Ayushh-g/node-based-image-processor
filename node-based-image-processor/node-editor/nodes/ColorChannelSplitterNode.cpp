@@ -9,10 +9,10 @@ ColorChannelSplitterNode::ColorChannelSplitterNode(int id)
 {
     // Setup pins
     AddInputPin("Image", PinType::Image);
-    AddOutputPin("Red", PinType::Channel);
-    AddOutputPin("Green", PinType::Channel);
-    AddOutputPin("Blue", PinType::Channel);
-    AddOutputPin("Alpha", PinType::Channel);
+    AddOutputPin("Red", PinType::Image);
+    AddOutputPin("Green", PinType::Image);
+    AddOutputPin("Blue", PinType::Image);
+    AddOutputPin("Alpha", PinType::Image);
 }
 
 void ColorChannelSplitterNode::Process()
@@ -201,8 +201,12 @@ void ColorChannelSplitterNode::UpdatePreviewTextures()
     if (!m_RedChannel.empty())
     {
         cv::Mat displayImage;
-        if (m_RedChannel.channels() == 1)
-            cv::cvtColor(m_RedChannel, displayImage, cv::COLOR_GRAY2RGB);
+        if (m_RedChannel.channels() == 3)
+            cv::cvtColor(m_RedChannel, displayImage, cv::COLOR_BGR2RGBA);
+        else if (m_RedChannel.channels() == 4)
+            cv::cvtColor(m_RedChannel, displayImage, cv::COLOR_BGRA2RGBA);
+        else if (m_RedChannel.channels() == 1)
+            cv::cvtColor(m_RedChannel, displayImage, cv::COLOR_GRAY2RGBA);
         else
             displayImage = m_RedChannel.clone();
 
@@ -212,8 +216,12 @@ void ColorChannelSplitterNode::UpdatePreviewTextures()
     if (!m_GreenChannel.empty())
     {
         cv::Mat displayImage;
-        if (m_GreenChannel.channels() == 1)
-            cv::cvtColor(m_GreenChannel, displayImage, cv::COLOR_GRAY2RGB);
+        if (m_GreenChannel.channels() == 3)
+            cv::cvtColor(m_GreenChannel, displayImage, cv::COLOR_BGR2RGBA);
+        else if (m_GreenChannel.channels() == 4)
+            cv::cvtColor(m_GreenChannel, displayImage, cv::COLOR_BGRA2RGBA);
+        else if (m_GreenChannel.channels() == 1)
+            cv::cvtColor(m_GreenChannel, displayImage, cv::COLOR_GRAY2RGBA);
         else
             displayImage = m_GreenChannel.clone();
 
@@ -223,8 +231,12 @@ void ColorChannelSplitterNode::UpdatePreviewTextures()
     if (!m_BlueChannel.empty())
     {
         cv::Mat displayImage;
-        if (m_BlueChannel.channels() == 1)
-            cv::cvtColor(m_BlueChannel, displayImage, cv::COLOR_GRAY2RGB);
+        if (m_BlueChannel.channels() == 3)
+            cv::cvtColor(m_BlueChannel, displayImage, cv::COLOR_BGR2RGBA);
+        else if (m_BlueChannel.channels() == 4)
+            cv::cvtColor(m_BlueChannel, displayImage, cv::COLOR_BGRA2RGBA);
+        else if (m_BlueChannel.channels() == 1)
+            cv::cvtColor(m_BlueChannel, displayImage, cv::COLOR_GRAY2RGBA);
         else
             displayImage = m_BlueChannel.clone();
 
@@ -234,8 +246,12 @@ void ColorChannelSplitterNode::UpdatePreviewTextures()
     if (!m_AlphaChannel.empty())
     {
         cv::Mat displayImage;
-        if (m_AlphaChannel.channels() == 1)
-            cv::cvtColor(m_AlphaChannel, displayImage, cv::COLOR_GRAY2RGB);
+        if (m_AlphaChannel.channels() == 3)
+            cv::cvtColor(m_AlphaChannel, displayImage, cv::COLOR_BGR2RGBA);
+        else if (m_AlphaChannel.channels() == 4)
+            cv::cvtColor(m_AlphaChannel, displayImage, cv::COLOR_BGRA2RGBA);
+        else if (m_AlphaChannel.channels() == 1)
+            cv::cvtColor(m_AlphaChannel, displayImage, cv::COLOR_GRAY2RGBA);
         else
             displayImage = m_AlphaChannel.clone();
 
