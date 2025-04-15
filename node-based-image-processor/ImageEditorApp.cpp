@@ -134,6 +134,14 @@ void ImageEditorApp::ShowMainMenuBar()
                 {
                     CreateProcessingNode(7);
                 }
+                if (ImGui::MenuItem("Convolution Filter"))
+                {
+                    CreateProcessingNode(8);
+                }
+                if (ImGui::MenuItem("Noise Generation"))
+                {
+                    CreateProcessingNode(9);
+                }
 
                 ImGui::EndMenu();
             }

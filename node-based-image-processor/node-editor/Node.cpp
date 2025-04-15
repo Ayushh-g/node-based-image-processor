@@ -8,6 +8,8 @@
 #include "nodes/ThresholdNode.h"
 #include "nodes/BlendNode.h"
 #include "nodes/EdgeDetectionNode.h"
+#include "nodes/ConvolutionFilterNode.h"
+#include "nodes/NoiseGenerationNode.h"
 
 // Pin implementation
 Pin::Pin(int id, const char* name, PinType type, PinKind kind)
@@ -133,6 +135,12 @@ Node* NodeFactory::CreateNode(int nodeType, int id)
 
 	case 7:  // Blend Node
 		return new BlendNode(id);
+
+	case 8:  // Convolution Filter Node
+		return new ConvolutionFilterNode(id);
+
+	case 9:  // Noise Generation Node
+		return new NoiseGenerationNode(id);
         // Additional node types will be added as they are implemented
 
     default:

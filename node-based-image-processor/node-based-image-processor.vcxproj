@@ -158,8 +158,10 @@
     <ClCompile Include="node-editor\nodes\BlurNode.cpp" />
     <ClCompile Include="node-editor\nodes\BrightnessContrastNode.cpp" />
     <ClCompile Include="node-editor\nodes\ColorChannelSplitterNode.cpp" />
+    <ClCompile Include="node-editor\nodes\ConvolutionFilterNode.cpp" />
     <ClCompile Include="node-editor\nodes\EdgeDetectionNode.cpp" />
     <ClCompile Include="node-editor\nodes\InputNode.cpp" />
+    <ClCompile Include="node-editor\nodes\NoiseGenerationNode.cpp" />
     <ClCompile Include="node-editor\nodes\OutputNode.cpp" />
     <ClCompile Include="node-editor\nodes\ThresholdNode.cpp" />
   </ItemGroup>
@@ -196,8 +198,10 @@
     <ClInclude Include="node-editor\nodes\BlurNode.h" />
     <ClInclude Include="node-editor\nodes\BrightnessContrastNode.h" />
     <ClInclude Include="node-editor\nodes\ColorChannelSplitterNode.h" />
+    <ClInclude Include="node-editor\nodes\ConvolutionFilterNode.h" />
     <ClInclude Include="node-editor\nodes\EdgeDetectionNode.h" />
     <ClInclude Include="node-editor\nodes\InputNode.h" />
+    <ClInclude Include="node-editor\nodes\NoiseGenerationNode.h" />
     <ClInclude Include="node-editor\nodes\OutputNode.h" />
     <ClInclude Include="node-editor\nodes\ThresholdNode.h" />
   </ItemGroup>
