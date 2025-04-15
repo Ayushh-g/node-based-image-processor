@@ -108,6 +108,7 @@ bool InputNode::ShowOpenFileDialog()
 
 void InputNode::DrawNodeContent()
 {
+    ImGui::PushID(ID.AsPointer()); // Ensure unique IDs for widgets within this node instance
     // Display image preview if loaded
     if (m_ImageLoaded)
     {
@@ -138,7 +139,7 @@ void InputNode::DrawNodeContent()
         ImGui::Text("File Size: %.2f KB", GetSizeBytes() / 1024.0f);
         
         // Auto-resize options
-        if (ImGui::Checkbox("Auto-resize large images", &m_EnableAutoResize))
+        if (ImGui::Checkbox("Resize large images", &m_EnableAutoResize))
         {
             // User changed resize option - reload image if we have one
             if (!m_FilePath.empty())
@@ -181,7 +182,7 @@ void InputNode::DrawNodeContent()
         
         // Auto-resize options
         const float itemWidth = 150.0f; // Define a width for the widgets
-        ImGui::Checkbox("Auto-resize large images", &m_EnableAutoResize);
+        ImGui::Checkbox("Resize large images", &m_EnableAutoResize);
         if (m_EnableAutoResize)
         {
             ImGui::SameLine();
@@ -195,6 +196,7 @@ void InputNode::DrawNodeContent()
             ShowOpenFileDialog();
         }
     }
+    ImGui::PopID(); // Pop the node instance ID
 }
 
 void InputNode::OnSelected()

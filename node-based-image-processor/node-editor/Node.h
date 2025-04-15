@@ -40,7 +40,7 @@ public:
     std::string Name;
     PinType Type;
     PinKind Kind;
-
+    
     bool IsConnected() const; // Checks with NodeEditorManager if this pin is connected
     ImColor GetColor() const;
 };
@@ -73,6 +73,9 @@ public:
     Pin* FindPin(ed::PinId id);
     Pin* GetInputPin(int index);
     Pin* GetOutputPin(int index);
+
+    int NextInputPinIndex = 0;
+    int NextOutputPinIndex = 0;
 
 protected:
     // Cache for processed image data

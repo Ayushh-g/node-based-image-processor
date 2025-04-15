@@ -55,6 +55,7 @@ void BrightnessContrastNode::Process()
 
 void BrightnessContrastNode::DrawNodeContent()
 {
+    ImGui::PushID(ID.AsPointer()); // Ensure unique IDs for widgets within this node instance
     // Show parameter controls
     bool changed = false;
     const float itemWidth = 150.0f; // Define a width for the sliders
@@ -115,6 +116,7 @@ void BrightnessContrastNode::DrawNodeContent()
     {
         ImGui::Text("No preview available");
     }
+    ImGui::PopID(); // Pop the node instance ID
 }
 
 void BrightnessContrastNode::UpdatePreviewTexture()

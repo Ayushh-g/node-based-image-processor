@@ -54,6 +54,8 @@ void BlurNode::Process()
 
 void BlurNode::DrawNodeContent()
 {
+    ImGui::PushID(ID.AsPointer()); // Ensure unique IDs for widgets within this node instance
+
     // Show blur parameters
     bool changed = false;
     const float itemWidth = 150.0f; // Define a width for the sliders
@@ -166,6 +168,8 @@ void BlurNode::DrawNodeContent()
     {
         ImGui::Text("No preview available");
     }
+
+	ImGui::PopID(); // Pop ID for this node instance
 }
 
 void BlurNode::GenerateKernel()

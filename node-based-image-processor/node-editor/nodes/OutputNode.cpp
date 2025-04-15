@@ -45,6 +45,8 @@ void OutputNode::Process()
 
 void OutputNode::DrawNodeContent()
 {
+    ImGui::PushID(ID.AsPointer()); // Ensure unique IDs for widgets within this node instance
+
     // Display image preview if we have one
     if (!m_PreviewImage.empty() && m_PreviewTexture)
     {
@@ -132,6 +134,7 @@ void OutputNode::DrawNodeContent()
         ImGui::Text("No input image");
         ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "Connect an input to save an image");
     }
+	ImGui::PopID(); // Pop the node instance ID
 }
 
 bool OutputNode::SaveImage(const std::string& path)

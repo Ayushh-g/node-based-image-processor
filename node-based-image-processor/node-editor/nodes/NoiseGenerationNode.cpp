@@ -33,6 +33,8 @@ void NoiseGenerationNode::Process()
 
 void NoiseGenerationNode::DrawNodeContent()
 {
+    ImGui::PushID(ID.AsPointer()); // Ensure unique IDs for widgets within this node instance
+
     bool changed = false;
 
     // Output dimensions
@@ -114,6 +116,7 @@ void NoiseGenerationNode::DrawNodeContent()
     {
         ImGui::Text("No preview available");
     }
+	ImGui::PopID(); // Pop ID for this node instance
 }
 
 void NoiseGenerationNode::GenerateNoise()

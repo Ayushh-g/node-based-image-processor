@@ -129,6 +129,8 @@ void ColorChannelSplitterNode::Process()
 
 void ColorChannelSplitterNode::DrawNodeContent()
 {
+    ImGui::PushID(ID.AsPointer()); // Ensure unique IDs for widgets within this node instance
+
     ImGui::Checkbox("Output as Grayscale", &m_OutputGrayscale);
     
     if (ImGui::IsItemEdited())
@@ -191,6 +193,8 @@ void ColorChannelSplitterNode::DrawNodeContent()
         ImGui::EndGroup();
     }
     } // End if(m_ShowPreview)
+
+	ImGui::PopID(); // Pop ID for this node instance
 }
 
 void ColorChannelSplitterNode::UpdatePreviewTextures()

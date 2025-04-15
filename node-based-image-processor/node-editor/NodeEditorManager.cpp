@@ -119,6 +119,10 @@ void NodeEditorManager::Render()
 
         // --- Spacer ---
         ImGui::Spring(1); // Push inputs left, outputs right
+        std::string temp = "                ";
+        ImGui::TextUnformatted(temp.c_str());
+
+        ImGui::Spring(2); // Push inputs left, outputs right
 
         // --- Output Pins (Right Column) ---
         ImGui::BeginVertical("outputs", ImVec2(0, 0), 1.0f); // Align column right

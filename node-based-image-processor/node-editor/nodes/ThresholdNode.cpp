@@ -57,9 +57,11 @@ void ThresholdNode::Process()
 
 void ThresholdNode::DrawNodeContent()
 {
+    ImGui::PushID(ID.AsPointer()); // Ensure unique IDs for widgets within this node instance
+
     // Show threshold parameters based on type
     bool changed = false;
-    const float itemWidth = 150.0f; // Define a width for the widgets
+    const float itemWidth = 120.0f; // Define a width for the widgets
 
     // Select threshold type
     ImGui::PushItemWidth(itemWidth);
@@ -153,6 +155,8 @@ void ThresholdNode::DrawNodeContent()
     {
         ImGui::Text("No preview available");
     }
+
+    ImGui::PopID(); // Pop the node instance ID
 }
 
 cv::Mat ThresholdNode::ApplyThreshold(const cv::Mat& inputImage)

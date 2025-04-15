@@ -32,14 +32,14 @@ ImColor Pin::GetColor() const
     // Return color based on pin type
     switch (Type)
     {
-    case PinType::Image:   return ImColor(255, 128, 128);
-    case PinType::Int:     return ImColor(68, 201, 156);
-    case PinType::Float:   return ImColor(147, 226, 74);
-    case PinType::Bool:    return ImColor(220, 48, 48);
-    case PinType::String:  return ImColor(124, 21, 153);
-    case PinType::Color:   return ImColor(51, 150, 215);
-    case PinType::Channel: return ImColor(218, 0, 183);
-    default:               return ImColor(255, 255, 255);
+        case PinType::Image:   return ImColor(255, 128, 128);
+        case PinType::Int:     return ImColor(68, 201, 156);
+        case PinType::Float:   return ImColor(147, 226, 74);
+        case PinType::Bool:    return ImColor(220, 48, 48);
+        case PinType::String:  return ImColor(124, 21, 153);
+        case PinType::Color:   return ImColor(51, 150, 215);
+        case PinType::Channel: return ImColor(218, 0, 183);
+        default:               return ImColor(255, 255, 255);
     }
 }
 
@@ -61,15 +61,15 @@ void Node::OnDeselected()
 
 void Node::AddInputPin(const char* name, PinType type)
 {
-    // Create an input pin with a unique ID and add it to inputs
-    Inputs.emplace_back(Inputs.size() + 1000 * (int)ID.Get(), name, type, PinKind::Input);
+    int pinID = 1000000 * (int)ID.Get() + 1000 + NextInputPinIndex++; // 1000 block for inputs
+    Inputs.emplace_back(pinID, name, type, PinKind::Input);
     Inputs.back().Node = this;
 }
 
 void Node::AddOutputPin(const char* name, PinType type)
 {
-    // Create an output pin with a unique ID and add it to outputs
-    Outputs.emplace_back(Outputs.size() + 2000 * (int)ID.Get(), name, type, PinKind::Output);
+    int pinID = 1000000 * (int)ID.Get() + 2000 + NextOutputPinIndex++; // 2000 block for outputs
+    Outputs.emplace_back(pinID, name, type, PinKind::Output);
     Outputs.back().Node = this;
 }
 
@@ -81,14 +81,14 @@ Pin* Node::FindPin(ed::PinId id)
         if (pin.ID == id)
             return &pin;
     }
-
+    
     // Search in outputs
     for (auto& pin : Outputs)
     {
         if (pin.ID == id)
             return &pin;
     }
-
+    
     return nullptr;
 }
 
@@ -112,38 +112,38 @@ Node* NodeFactory::CreateNode(int nodeType, int id)
     // Create different node types based on nodeType
     switch (nodeType)
     {
-    case 0:  // Image Input Node
-        return new InputNode(id);
+        case 0:  // Image Input Node
+            return new InputNode(id);
+        
+        case 1:  // Output Node
+            return new OutputNode(id);
+            
+        case 2:  // Brightness/Contrast Node
+            return new BrightnessContrastNode(id);
+            
+        case 3:  // Color Channel Splitter Node
+            return new ColorChannelSplitterNode(id);
+            
+        case 4:  // Blur Node
+            return new BlurNode(id);
+            
+        case 5:  // Threshold Node
+            return new ThresholdNode(id);
+            
+        case 6:  // Edge Detection Node
+            return new EdgeDetectionNode(id);
+		case 7:  // Blend Node
+			return new BlendNode(id);
 
-    case 1:  // Output Node
-        return new OutputNode(id);
+        case 8:  // Convolution Filter Node
+            return new ConvolutionFilterNode(id);
 
-    case 2:  // Brightness/Contrast Node
-        return new BrightnessContrastNode(id);
+        case 9:  // Noise Generation Node
+            return new NoiseGenerationNode(id);
 
-    case 3:  // Color Channel Splitter Node
-        return new ColorChannelSplitterNode(id);
-
-    case 4:  // Blur Node
-        return new BlurNode(id);
-
-    case 5:  // Threshold Node
-        return new ThresholdNode(id);
-
-    case 6:  // Edge Detection Node
-        return new EdgeDetectionNode(id);
-
-	case 7:  // Blend Node
-		return new BlendNode(id);
-
-	case 8:  // Convolution Filter Node
-		return new ConvolutionFilterNode(id);
-
-	case 9:  // Noise Generation Node
-		return new NoiseGenerationNode(id);
         // Additional node types will be added as they are implemented
 
-    default:
-        return nullptr;
+        default:
+            return nullptr;
     }
 }

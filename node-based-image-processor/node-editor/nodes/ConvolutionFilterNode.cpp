@@ -58,6 +58,8 @@ void ConvolutionFilterNode::Process()
 
 void ConvolutionFilterNode::DrawNodeContent()
 {
+    ImGui::PushID(ID.AsPointer()); // Ensure unique IDs for widgets within this node instance
+
     bool changed = false;
 
     const float itemWidth = 150.0f; // Define a width for the combo box
@@ -162,6 +164,8 @@ void ConvolutionFilterNode::DrawNodeContent()
     {
         ImGui::Text("No preview available");
     }
+
+	ImGui::PopID(); // Pop ID for this node instance
 }
 
 void ConvolutionFilterNode::UpdateKernelFromUI()

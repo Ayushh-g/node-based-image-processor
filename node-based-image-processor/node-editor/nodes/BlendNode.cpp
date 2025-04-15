@@ -241,6 +241,8 @@ cv::Mat BlendNode::ApplyOpacity(const cv::Mat& baseImg, const cv::Mat& blendedIm
 
 void BlendNode::DrawNodeContent()
 {
+    ImGui::PushID(ID.AsPointer()); // Ensure unique IDs for widgets within this node instance
+
     // Show parameter controls
     bool changed = false;
 
@@ -304,6 +306,8 @@ void BlendNode::DrawNodeContent()
     {
         ImGui::Text("No preview available");
     }
+
+    ImGui::PopID(); // Pop ID for this node instance
 }
 
 void BlendNode::UpdatePreviewTexture()

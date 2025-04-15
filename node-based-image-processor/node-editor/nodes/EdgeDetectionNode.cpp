@@ -47,6 +47,7 @@ void EdgeDetectionNode::Process()
 
 void EdgeDetectionNode::DrawNodeContent()
 {
+    ImGui::PushID(ID.AsPointer()); // Ensure unique IDs for widgets within this node instance
     // Show edge detection parameters
     bool changed = false;
     const float itemWidth = 150.0f; // Define a width for the widgets
@@ -215,6 +216,8 @@ void EdgeDetectionNode::DrawNodeContent()
     {
         ImGui::Text("No preview available");
     }
+
+	ImGui::PopID(); // Pop ID for this node instance
 }
 
 cv::Mat EdgeDetectionNode::ApplyEdgeDetection(const cv::Mat& inputImage)
