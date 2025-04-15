@@ -80,56 +80,83 @@ void NodeEditorManager::Render()
     {
         ed::BeginNode(node->ID);
 
+        // Node Title
         ImGui::Text("%s", node->Name.c_str());
-        ImGui::Dummy(ImVec2(0, 5));
+        ImGui::Dummy(ImVec2(0, 5)); // Spacing after title
 
-        // Draw node content (parameters, previews, etc.)
-        node->DrawNodeContent();
+        // Horizontal layout for Pins Container
+        ImGui::BeginHorizontal("pins");
 
-        // Draw input pins
+        // --- Input Pins (Left Column) ---
+        ImGui::BeginVertical("inputs", ImVec2(0, 0), 0.0f); // Align column left
+        ed::PushStyleVar(ed::StyleVar_PivotAlignment, ImVec2(0.0f, 0.5f)); // Align pin connection point to left-center
         for (auto& input : node->Inputs)
         {
             ed::BeginPin(input.ID, ed::PinKind::Input);
-            ImGui::BeginHorizontal(input.ID.AsPointer());
+            ImGui::BeginHorizontal(input.ID.AsPointer()); // Pin content horizontal layout
 
             // Draw pin icon
-            const float pinSize = 24.0f;
+            const float pinSize = 16.0f;
             ImColor color = input.GetColor();
             ImVec2 cursorPos = ImGui::GetCursorScreenPos();
             ImGui::GetWindowDrawList()->AddCircleFilled(
                 ImVec2(cursorPos.x + pinSize / 2, cursorPos.y + pinSize / 2),
-                pinSize / 4, color, 12);
+                pinSize / 3, color, 12);
+            ImGui::Dummy(ImVec2(pinSize, pinSize)); // Space for icon
 
-            ImGui::Dummy(ImVec2(pinSize, pinSize));
-            ImGui::Spring(0);
-            ImGui::TextUnformatted(input.Name.c_str());
-            ImGui::EndHorizontal();
+            // Pin Name
+            if (!input.Name.empty()) {
+                ImGui::TextUnformatted(input.Name.c_str());
+            }
+            // No Spring here, text aligns left within the vertical column
+
+            ImGui::EndHorizontal(); // End pin content layout
             ed::EndPin();
+            ImGui::Dummy(ImVec2(0, 2)); // Small vertical spacing between pins
         }
+        ed::PopStyleVar(); // Pop PivotAlignment
+        ImGui::EndVertical(); // End inputs column
 
-        // Draw output pins
+        // --- Spacer ---
+        ImGui::Spring(1); // Push inputs left, outputs right
+
+        // --- Output Pins (Right Column) ---
+        ImGui::BeginVertical("outputs", ImVec2(0, 0), 1.0f); // Align column right
+        ed::PushStyleVar(ed::StyleVar_PivotAlignment, ImVec2(1.0f, 0.5f)); // Align pin connection point to right-center
         for (auto& output : node->Outputs)
         {
             ed::BeginPin(output.ID, ed::PinKind::Output);
-            ImGui::BeginHorizontal(output.ID.AsPointer());
+            ImGui::BeginHorizontal(output.ID.AsPointer()); // Pin content horizontal layout
 
-            ImGui::TextUnformatted(output.Name.c_str());
-            ImGui::Spring(0);
+            // Pin Name
+            if (!output.Name.empty()) {
+                ImGui::TextUnformatted(output.Name.c_str());
+            }
+            ImGui::Spring(0); // Push name left towards the center
 
             // Draw pin icon
-            const float pinSize = 24.0f;
+            const float pinSize = 16.0f;
             ImColor color = output.GetColor();
             ImVec2 cursorPos = ImGui::GetCursorScreenPos();
             ImGui::GetWindowDrawList()->AddCircleFilled(
                 ImVec2(cursorPos.x + pinSize / 2, cursorPos.y + pinSize / 2),
-                pinSize / 4, color, 12);
+                pinSize / 3, color, 12);
+            ImGui::Dummy(ImVec2(pinSize, pinSize)); // Space for icon
 
-            ImGui::Dummy(ImVec2(pinSize, pinSize));
-            ImGui::EndHorizontal();
+            ImGui::EndHorizontal(); // End pin content layout
             ed::EndPin();
+            ImGui::Dummy(ImVec2(0, 2)); // Small vertical spacing between pins
         }
+        ed::PopStyleVar(); // Pop PivotAlignment
+        ImGui::EndVertical(); // End outputs column
 
-        ed::EndNode();
+        ImGui::EndHorizontal(); // End horizontal pin layout
+
+        // --- Draw Node Content BELOW pins ---
+        ImGui::Separator(); // Optional separator between pins and content
+        node->DrawNodeContent(); // Draw the node's specific UI
+
+        ed::EndNode(); // End the node
     }
 
     // Draw all links

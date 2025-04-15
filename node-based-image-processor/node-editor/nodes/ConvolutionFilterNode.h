@@ -20,8 +20,9 @@ private:
     void UpdateKernelFromUI();
 
     cv::Mat m_InputImage;
-    cv::Mat m_OutputImage;
+    // m_OutputImage is inherited from Node base class
     void* m_PreviewTexture = nullptr; // Use void* for texture handle
+    bool m_ShowPreview = true; // Added for optional preview
 
     // Kernel parameters
     int m_KernelSize = 3; // 3 for 3x3, 5 for 5x5

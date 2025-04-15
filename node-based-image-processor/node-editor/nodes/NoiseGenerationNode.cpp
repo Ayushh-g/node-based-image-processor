@@ -46,9 +46,13 @@ void NoiseGenerationNode::DrawNodeContent()
     m_Width = std::max(1, m_Width);
     m_Height = std::max(1, m_Height);
 
+    const float itemWidth = 150.0f; // Define a width for the main widgets
+
     // Noise type selection
+    ImGui::PushItemWidth(itemWidth);
     const char* noiseTypes[] = { "Uniform Random", "Gaussian Random" };
     changed |= ImGui::Combo("Noise Type", &m_NoiseType, noiseTypes, IM_ARRAYSIZE(noiseTypes));
+    ImGui::PopItemWidth();
 
     // Color vs Grayscale
     changed |= ImGui::Checkbox("Color Noise", &m_IsColor);
@@ -61,13 +65,19 @@ void NoiseGenerationNode::DrawNodeContent()
     }
     else if (m_NoiseType == 1) // Gaussian Random
     {
+        ImGui::PushItemWidth(itemWidth);
         float mean = static_cast<float>(m_Mean);
         float stddev = static_cast<float>(m_StdDev);
         changed |= ImGui::SliderFloat("Mean", &mean, 0.0f, 255.0f);
         changed |= ImGui::SliderFloat("Std Dev", &stddev, 0.0f, 100.0f);
-        if (changed) {
-            m_Mean = static_cast<double>(mean);
-            m_StdDev = static_cast<double>(stddev);
+        ImGui::PopItemWidth();
+        if (changed) { // Check if sliders changed the value
+             // Check if the sliders actually changed the value before assigning
+            bool meanChanged = (static_cast<double>(mean) != m_Mean);
+            bool stdDevChanged = (static_cast<double>(stddev) != m_StdDev);
+            if (meanChanged) m_Mean = static_cast<double>(mean);
+            if (stdDevChanged) m_StdDev = static_cast<double>(stddev);
+            // 'changed' is already true if we entered this block due to slider interaction
         }
     }
 
@@ -80,8 +90,11 @@ void NoiseGenerationNode::DrawNodeContent()
         Dirty = true;    // Mark as dirty to ensure Process() updates data manager
     }
 
-    // Display preview
-    if (!m_OutputImage.empty() && m_PreviewTexture)
+    // Add checkbox for preview
+    ImGui::Checkbox("Show Preview", &m_ShowPreview);
+
+    // Display preview if enabled and we have an output image
+    if (m_ShowPreview && !m_OutputImage.empty() && m_PreviewTexture)
     {
         ImGui::Separator();
         ImGui::Text("Preview:");

@@ -18,8 +18,10 @@ private:
     
     // Input/Output images
     cv::Mat m_InputImage;
+    // m_OutputImage is inherited from Node base class
     ImTextureID m_PreviewTexture = nullptr;
-    
+    bool m_ShowPreview = true; // Added for optional preview
+
     // Display helpers
     void UpdatePreviewTexture();
     void CleanupTexture();

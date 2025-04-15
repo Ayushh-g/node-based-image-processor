@@ -32,12 +32,12 @@ void OutputNode::Process()
     {
         m_InputImage = cv::Mat();
     }
-
+    
     // Generate a preview image (possibly scaled down)
     if (!m_InputImage.empty())
     {
         m_PreviewImage = m_InputImage.clone();
-
+        
         // Update the preview texture
         UpdatePreviewTexture();
     }
@@ -51,29 +51,34 @@ void OutputNode::DrawNodeContent()
         // Calculate preview size
         const float maxPreviewWidth = 200.0f;
         const float maxPreviewHeight = 150.0f;
-
+        
         float aspectRatio = (float)m_PreviewImage.cols / (float)m_PreviewImage.rows;
         float previewWidth = min(maxPreviewWidth, (float)m_PreviewImage.cols);
         float previewHeight = previewWidth / aspectRatio;
-
+        
         if (previewHeight > maxPreviewHeight)
         {
             previewHeight = maxPreviewHeight;
             previewWidth = previewHeight * aspectRatio;
         }
-
+        
         // Draw the preview
         ImGui::Image(m_PreviewTexture, ImVec2(previewWidth, previewHeight));
-
+        
         // Display image info
         ImGui::Text("Size: %d x %d", m_PreviewImage.cols, m_PreviewImage.rows);
         ImGui::Text("Channels: %d", m_PreviewImage.channels());
+        
+        const float itemWidth = 150.0f; // Define a width for the widgets
 
         // Output format selection
+        ImGui::PushItemWidth(itemWidth);
         const char* formats[] = { "JPEG", "PNG", "BMP" };
         ImGui::Combo("Format", &m_OutputFormat, formats, 3);
+        ImGui::PopItemWidth();
 
         // Format-specific controls
+        ImGui::PushItemWidth(itemWidth);
         if (m_OutputFormat == 0) // JPEG
         {
             ImGui::SliderInt("Quality", &m_JpegQuality, 1, 100);
@@ -82,7 +87,7 @@ void OutputNode::DrawNodeContent()
             if (ImGui::IsItemHovered())
             {
                 ImGui::SetTooltip("Higher quality values result in less compression\n"
-                    "but larger file sizes. 95 is high quality.");
+                                 "but larger file sizes. 95 is high quality.");
             }
         }
         else if (m_OutputFormat == 1) // PNG
@@ -93,9 +98,10 @@ void OutputNode::DrawNodeContent()
             if (ImGui::IsItemHovered())
             {
                 ImGui::SetTooltip("0: No compression, 9: Maximum compression\n"
-                    "Higher values result in smaller files but slower saving");
+                                 "Higher values result in smaller files but slower saving");
             }
         }
+        ImGui::PopItemWidth(); // Pop item width after format controls
 
         // Show save feedback if we have saved an image
         if (!m_LastSavePath.empty() && m_SaveSuccess)
@@ -110,11 +116,11 @@ void OutputNode::DrawNodeContent()
                 size_t lastSlash = filename.find_last_of("/\\");
                 if (lastSlash != std::string::npos)
                     filename = filename.substr(lastSlash + 1);
-
+                
                 ImGui::TextColored(ImVec4(0.0f, 0.8f, 0.0f, 1.0f), "Saved: %s", filename.c_str());
             }
         }
-
+        
         // Save button
         if (ImGui::Button("Save Image"))
         {
@@ -132,9 +138,9 @@ bool OutputNode::SaveImage(const std::string& path)
 {
     if (m_InputImage.empty())
         return false;
-
+    
     std::vector<int> params;
-
+    
     // Set format-specific parameters
     if (m_OutputFormat == 0) // JPEG
     {
@@ -146,17 +152,17 @@ bool OutputNode::SaveImage(const std::string& path)
         params.push_back(cv::IMWRITE_PNG_COMPRESSION);
         params.push_back(m_PngCompressionLevel);
     }
-
+    
     // Try to save the image
     bool success = cv::imwrite(path, m_InputImage, params);
-
+    
     // Store result info for feedback
     m_SaveSuccess = success;
     if (success) {
         m_LastSavePath = path;
         m_SaveTimestamp = std::time(nullptr);
     }
-
+    
     return success;
 }
 
@@ -168,31 +174,31 @@ bool OutputNode::ShowSaveFileDialog()
     // Set default file extension based on selected format
     const char* fileExtension;
     const char* filterStr;
-
+    
     switch (m_OutputFormat)
     {
-    case 0: // JPEG
-        fileExtension = ".jpg";
-        filterStr = "JPEG Images\0*.jpg;*.jpeg\0All Files\0*.*\0";
-        break;
-    case 1: // PNG
-        fileExtension = ".png";
-        filterStr = "PNG Images\0*.png\0All Files\0*.*\0";
-        break;
-    case 2: // BMP
-        fileExtension = ".bmp";
-        filterStr = "BMP Images\0*.bmp\0All Files\0*.*\0";
-        break;
-    default:
-        fileExtension = ".jpg";
-        filterStr = "All Image Files\0*.jpg;*.jpeg;*.png;*.bmp\0All Files\0*.*\0";
-        break;
+        case 0: // JPEG
+            fileExtension = ".jpg";
+            filterStr = "JPEG Images\0*.jpg;*.jpeg\0All Files\0*.*\0";
+            break;
+        case 1: // PNG
+            fileExtension = ".png";
+            filterStr = "PNG Images\0*.png\0All Files\0*.*\0";
+            break;
+        case 2: // BMP
+            fileExtension = ".bmp";
+            filterStr = "BMP Images\0*.bmp\0All Files\0*.*\0";
+            break;
+        default:
+            fileExtension = ".jpg";
+            filterStr = "All Image Files\0*.jpg;*.jpeg;*.png;*.bmp\0All Files\0*.*\0";
+            break;
     }
 
     // Prepare file name buffer with default name
     char filename[MAX_PATH] = "output";
     strcat_s(filename, fileExtension);
-
+    
     OPENFILENAMEA ofn;
     ZeroMemory(&ofn, sizeof(ofn));
     ofn.lStructSize = sizeof(ofn);
@@ -203,13 +209,13 @@ bool OutputNode::ShowSaveFileDialog()
     ofn.lpstrTitle = "Save Image";
     ofn.Flags = OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST;
     ofn.lpstrDefExt = fileExtension + 1; // Skip the dot
-
+    
     if (GetSaveFileNameA(&ofn))
     {
         // Save the image to the selected file
         return SaveImage(filename);
     }
-
+    
     return false;
 }
 
@@ -217,14 +223,14 @@ void OutputNode::UpdatePreviewTexture()
 {
     // Clean up any existing texture
     CleanupTexture();
-
+    
     if (m_PreviewImage.empty())
         return;
-
+    
     // Verify we have valid image data
     if (m_PreviewImage.data == nullptr)
         return;
-
+    
     // Convert image from OpenCV BGR format to RGBA for texture creation
     cv::Mat rgbImage;
     try {
@@ -241,7 +247,7 @@ void OutputNode::UpdatePreviewTexture()
         // Handle conversion error - just return without creating texture
         return;
     }
-
+    
     try {
         // Use the Application's texture creation API
         if (ImageEditorApp* app = ImageEditorApp::GetInstance()) {
@@ -276,9 +282,9 @@ cv::Mat OutputNode::GetConnectedImage()
     // Get input pin
     if (Inputs.empty())
         return cv::Mat();
-
+    
     auto& inputPin = Inputs[0];
-
+    
     // Use ImageDataManager to get the image
     return ImageDataManager::GetInstance().GetImageData(inputPin.ID);
 }

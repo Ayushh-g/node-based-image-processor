@@ -41,16 +41,16 @@ void ImageEditorApp::OnFrame(float deltaTime)
     ShowMainMenuBar();
 
     // Main layout
-    ImGui::Columns(2);
+    //ImGui::Columns(2);
 
     // Node editor area (left)
-    ImGui::SetColumnWidth(0, ImGui::GetWindowWidth() * 0.7f);
+    //ImGui::SetColumnWidth(0, ImGui::GetWindowWidth() * 0.7f);
     ShowNodeEditor();
 
     // Properties panel (right)
-    ImGui::NextColumn();
-    ShowPropertiesPanel();
-    ImGui::Columns(1);
+    //ImGui::NextColumn();
+    //ShowPropertiesPanel();
+    //ImGui::Columns(1);
 
     // Process nodes (only if we have changes)
     m_NodeEditor->ProcessNodes();

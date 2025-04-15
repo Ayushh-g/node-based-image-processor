@@ -59,12 +59,16 @@ void ThresholdNode::DrawNodeContent()
 {
     // Show threshold parameters based on type
     bool changed = false;
-    
+    const float itemWidth = 150.0f; // Define a width for the widgets
+
     // Select threshold type
+    ImGui::PushItemWidth(itemWidth);
     const char* thresholdTypes[] = { "Binary", "Adaptive", "Otsu" };
     changed |= ImGui::Combo("Threshold Type", &m_ThresholdType, thresholdTypes, 3);
-    
+    ImGui::PopItemWidth();
+
     // Show parameters based on selected type
+    ImGui::PushItemWidth(itemWidth);
     if (m_ThresholdType == 0) // Binary threshold
     {
         float threshValue = static_cast<float>(m_ThresholdValue);
@@ -80,7 +84,7 @@ void ThresholdNode::DrawNodeContent()
         changed |= ImGui::SliderInt("Block Size", &m_AdaptiveBlockSize, 3, 99);
         if (m_AdaptiveBlockSize % 2 == 0)
             m_AdaptiveBlockSize++; // Make sure it's odd
-        
+
         float constant = static_cast<float>(m_AdaptiveConstant);
         if (ImGui::SliderFloat("C Value", &constant, -10.0f, 10.0f))
         {
@@ -88,7 +92,8 @@ void ThresholdNode::DrawNodeContent()
             changed = true;
         }
     }
-    
+    ImGui::PopItemWidth(); // Pop item width after parameter widgets
+
     // Invert option
     changed |= ImGui::Checkbox("Invert Result", &m_InvertThreshold);
     
@@ -117,9 +122,12 @@ void ThresholdNode::DrawNodeContent()
                 IM_COL32(255, 0, 0, 255), 1.0f);
         }
     }
-    
-    // Display preview if we have an output image
-    if (!m_OutputImage.empty() && m_PreviewTexture)
+
+    // Add checkbox for preview
+    ImGui::Checkbox("Show Preview", &m_ShowPreview);
+
+    // Display preview if enabled and we have an output image
+    if (m_ShowPreview && !m_OutputImage.empty() && m_PreviewTexture)
     {
         ImGui::Separator();
         ImGui::Text("Preview:");

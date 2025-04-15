@@ -24,23 +24,23 @@ void EdgeDetectionNode::Process()
     {
         m_InputImage = cv::Mat();
     }
-
+    
     if (m_InputImage.empty())
     {
-        m_OutputImage = cv::Mat();
+		m_OutputImage = cv::Mat();
         CleanupTexture();
         return;
     }
-
+    
     // Apply the edge detection algorithm based on current settings
     m_OutputImage = ApplyEdgeDetection(m_InputImage);
-
+    
     // Set the output image in the ImageDataManager
     if (!m_OutputImage.empty() && !Outputs.empty())
     {
         ImageDataManager::GetInstance().SetImageData(Outputs[0].ID, m_OutputImage);
     }
-
+    
     // Update the preview texture
     UpdatePreviewTexture();
 }
@@ -49,17 +49,21 @@ void EdgeDetectionNode::DrawNodeContent()
 {
     // Show edge detection parameters
     bool changed = false;
+    const float itemWidth = 150.0f; // Define a width for the widgets
 
     // Select detection type
+    ImGui::PushItemWidth(itemWidth);
     const char* detectionTypes[] = { "Sobel", "Canny", "Laplacian" };
     changed |= ImGui::Combo("Detection Type", &m_DetectionType, detectionTypes, 3);
+    ImGui::PopItemWidth();
 
     // Show parameters based on selected type
+    ImGui::PushItemWidth(itemWidth);
     if (m_DetectionType == 0) // Sobel
     {
         int kernelSizes[] = { 1, 3, 5, 7 };
         int kernelSizeIndex = 0;
-
+        
         // Find the current kernel size index
         for (int i = 0; i < 4; i++)
         {
@@ -69,7 +73,7 @@ void EdgeDetectionNode::DrawNodeContent()
                 break;
             }
         }
-
+        
         // Display kernel size combo
         const char* kernelLabels[] = { "1x1", "3x3", "5x5", "7x7" };
         if (ImGui::Combo("Kernel Size", &kernelSizeIndex, kernelLabels, 4))
@@ -112,10 +116,10 @@ void EdgeDetectionNode::DrawNodeContent()
             m_CannyThreshold1 = m_CannyThreshold2;
             changed = true;
         }
-
+        
         int apertureSizes[] = { 3, 5, 7 };
         int apertureSizeIndex = 0;
-
+        
         // Find the current aperture size index
         for (int i = 0; i < 3; i++)
         {
@@ -125,7 +129,7 @@ void EdgeDetectionNode::DrawNodeContent()
                 break;
             }
         }
-
+        
         // Display aperture size combo
         const char* apertureLabels[] = { "3x3", "5x5", "7x7" };
         if (ImGui::Combo("Aperture Size", &apertureSizeIndex, apertureLabels, 3))
@@ -140,7 +144,7 @@ void EdgeDetectionNode::DrawNodeContent()
     {
         int kernelSizes[] = { 1, 3, 5, 7 };
         int kernelSizeIndex = 0;
-
+        
         // Find the current kernel size index
         for (int i = 0; i < 4; i++)
         {
@@ -150,7 +154,7 @@ void EdgeDetectionNode::DrawNodeContent()
                 break;
             }
         }
-
+        
         // Display kernel size combo
         const char* kernelLabels[] = { "1x1", "3x3", "5x5", "7x7" };
         if (ImGui::Combo("Kernel Size", &kernelSizeIndex, kernelLabels, 4))
@@ -173,6 +177,7 @@ void EdgeDetectionNode::DrawNodeContent()
             changed = true;
         }
     }
+    ImGui::PopItemWidth(); // Pop item width after parameter widgets
 
     // Mark node as dirty if any parameter changed
     if (changed)
@@ -180,8 +185,11 @@ void EdgeDetectionNode::DrawNodeContent()
         Dirty = true;
     }
 
-    // Display preview if we have an output image
-    if (!m_OutputImage.empty() && m_PreviewTexture)
+    // Add checkbox for preview
+    ImGui::Checkbox("Show Preview", &m_ShowPreview);
+
+    // Display preview if enabled and we have an output image
+    if (m_ShowPreview && !m_OutputImage.empty() && m_PreviewTexture)
     {
         ImGui::Separator();
         ImGui::Text("Preview:");
@@ -213,21 +221,21 @@ cv::Mat EdgeDetectionNode::ApplyEdgeDetection(const cv::Mat& inputImage)
 {
     if (inputImage.empty())
         return cv::Mat();
-
+    
     cv::Mat grayImage;
     cv::Mat result;
-
+    
     // Convert to grayscale if needed
     if (inputImage.channels() == 1)
         grayImage = inputImage.clone();
     else
         cv::cvtColor(inputImage, grayImage, cv::COLOR_BGR2GRAY);
-
+    
     // Apply edge detection based on selected type
     if (m_DetectionType == 0) // Sobel
     {
         cv::Mat gradX, gradY, gradMag;
-
+        
         // Apply Sobel in X direction
         if (m_SobelDx > 0)
         {
@@ -238,7 +246,7 @@ cv::Mat EdgeDetectionNode::ApplyEdgeDetection(const cv::Mat& inputImage)
         {
             gradX = cv::Mat::zeros(grayImage.size(), CV_8UC1);
         }
-
+        
         // Apply Sobel in Y direction
         if (m_SobelDy > 0)
         {
@@ -249,7 +257,7 @@ cv::Mat EdgeDetectionNode::ApplyEdgeDetection(const cv::Mat& inputImage)
         {
             gradY = cv::Mat::zeros(grayImage.size(), CV_8UC1);
         }
-
+        
         // Combine results
         cv::addWeighted(gradX, 0.5, gradY, 0.5, 0, result);
     }
@@ -263,7 +271,7 @@ cv::Mat EdgeDetectionNode::ApplyEdgeDetection(const cv::Mat& inputImage)
         cv::Laplacian(grayImage, laplacianResult, CV_16S, m_LaplacianKernelSize, m_LaplacianScale, m_LaplacianDelta);
         cv::convertScaleAbs(laplacianResult, result);
     }
-
+    
     // Convert result to 3-channel if input was 3-channel
     if (inputImage.channels() > 1)
     {
@@ -271,7 +279,7 @@ cv::Mat EdgeDetectionNode::ApplyEdgeDetection(const cv::Mat& inputImage)
         cv::cvtColor(result, colorResult, cv::COLOR_GRAY2BGR);
         return colorResult;
     }
-
+    
     return result;
 }
 
@@ -279,11 +287,11 @@ void EdgeDetectionNode::UpdatePreviewTexture()
 {
     // Clean up any existing texture
     CleanupTexture();
-
+    
     // Use the local output image
     if (m_OutputImage.empty())
         return;
-
+    
     // Verify we have valid image data
     if (m_OutputImage.data == nullptr)
         return;
@@ -298,7 +306,7 @@ void EdgeDetectionNode::UpdatePreviewTexture()
         cv::cvtColor(m_OutputImage, rgbImage, cv::COLOR_GRAY2RGBA);
     else
         rgbImage = m_OutputImage.clone(); // Just use as-is if format is unexpected
-
+    
     // Use ImageEditorApp singleton to create texture instead of direct OpenGL calls
     if (ImageEditorApp* app = ImageEditorApp::GetInstance())
     {

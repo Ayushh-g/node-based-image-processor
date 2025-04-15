@@ -15,7 +15,8 @@ private:
     // Input/Output images
     cv::Mat m_InputImage;
     ImTextureID m_PreviewTexture = nullptr;
-    
+    bool m_ShowPreview = true; // Added for optional preview
+
     // Blur parameters
     int m_BlurRadius = 5;        // Range: 1-20
     bool m_DirectionalBlur = false;

@@ -24,7 +24,8 @@ private:
     int m_AdaptiveBlockSize = 11;   // For adaptive threshold (odd values 3-99)
     double m_AdaptiveConstant = 2;  // For adaptive threshold
     bool m_InvertThreshold = false; // Invert the threshold result
-    
+    bool m_ShowPreview = true; // Added for optional preview
+
     // Helper methods
     void UpdatePreviewTexture();
     void CleanupTextures();

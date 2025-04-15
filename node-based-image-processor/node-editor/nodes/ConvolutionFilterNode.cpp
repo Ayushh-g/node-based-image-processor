@@ -60,7 +60,10 @@ void ConvolutionFilterNode::DrawNodeContent()
 {
     bool changed = false;
 
+    const float itemWidth = 150.0f; // Define a width for the combo box
+
     // Kernel size selection
+    ImGui::PushItemWidth(itemWidth);
     const char* sizes[] = { "3x3", "5x5" };
     int currentSizeIndex = (m_KernelSize == 3) ? 0 : 1;
     if (ImGui::Combo("Kernel Size", &currentSizeIndex, sizes, 2))
@@ -78,6 +81,7 @@ void ConvolutionFilterNode::DrawNodeContent()
             changed = true;
         }
     }
+    ImGui::PopItemWidth();
 
     // Kernel matrix input
     ImGui::Text("Kernel Matrix:");
@@ -134,8 +138,11 @@ void ConvolutionFilterNode::DrawNodeContent()
         Dirty = true;
     }
 
-    // Display preview
-    if (!m_OutputImage.empty() && m_PreviewTexture)
+    // Add checkbox for preview
+    ImGui::Checkbox("Show Preview", &m_ShowPreview);
+
+    // Display preview if enabled and we have an output image
+    if (m_ShowPreview && !m_OutputImage.empty() && m_PreviewTexture)
     {
         ImGui::Separator();
         ImGui::Text("Preview:");

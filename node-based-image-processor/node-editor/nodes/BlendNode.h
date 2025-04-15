@@ -30,8 +30,10 @@ private:
     // Input/Output images
     cv::Mat m_InputImage1;   // Base image
     cv::Mat m_InputImage2;   // Blend image
+    // m_OutputImage is inherited from Node base class
     ImTextureID m_PreviewTexture = nullptr;
-    
+    bool m_ShowPreview = true; // Added for optional preview
+
     // Helper methods
     void UpdatePreviewTexture();
     void CleanupTexture();

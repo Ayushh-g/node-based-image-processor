@@ -21,7 +21,8 @@ private:
     
     // Display options
     bool m_OutputGrayscale = true;
-    
+    bool m_ShowPreview = true; // Added for optional preview
+
     // Preview textures
     ImTextureID m_RedTexture = nullptr;
     ImTextureID m_GreenTexture = nullptr;

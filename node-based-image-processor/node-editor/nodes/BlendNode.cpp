@@ -247,8 +247,12 @@ void BlendNode::DrawNodeContent()
     // Blend Mode combo box
     const char* blendModes[] = { "Normal", "Multiply", "Screen", "Overlay", "Difference", "Lighten", "Darken" };
     int currentMode = static_cast<int>(m_BlendMode);
+    const float itemWidth = 150.0f; // Define a width for the widgets
+
     ImGui::Text("Blend Mode:");
+    ImGui::PushItemWidth(itemWidth);
     changed |= ImGui::Combo("##BlendMode", &currentMode, blendModes, IM_ARRAYSIZE(blendModes));
+    ImGui::PopItemWidth();
     if (changed)
     {
         m_BlendMode = static_cast<BlendMode>(currentMode);
@@ -256,7 +260,9 @@ void BlendNode::DrawNodeContent()
 
     // Opacity slider
     ImGui::Text("Opacity:");
+    ImGui::PushItemWidth(itemWidth);
     changed |= ImGui::SliderFloat("##Opacity", &m_Opacity, 0.0f, 1.0f, "%.2f");
+    ImGui::PopItemWidth();
     ImGui::SameLine();
     if (ImGui::Button("Reset"))
     {
@@ -270,9 +276,13 @@ void BlendNode::DrawNodeContent()
         Dirty = true;
     }
 
-    // Display preview if we have an output image
-    if (!m_OutputImage.empty() && m_PreviewTexture)
+    // Add checkbox for preview
+    ImGui::Checkbox("Show Preview", &m_ShowPreview);
+
+    // Display preview if enabled and we have an output image
+    if (m_ShowPreview && !m_OutputImage.empty() && m_PreviewTexture)
     {
+        ImGui::Separator(); // Add separator before preview
         // Calculate preview size
         const float maxPreviewWidth = 200.0f;
         const float maxPreviewHeight = 150.0f;

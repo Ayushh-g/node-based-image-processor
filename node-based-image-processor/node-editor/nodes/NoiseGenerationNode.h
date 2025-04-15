@@ -17,8 +17,9 @@ private:
     void CleanupTexture();
     void GenerateNoise();
 
-    cv::Mat m_OutputImage;
+    // m_OutputImage is inherited from Node base class
     void* m_PreviewTexture = nullptr; // Use void* for texture handle
+    bool m_ShowPreview = true; // Added for optional preview
 
     // Noise parameters
     int m_Width = 256;

@@ -14,8 +14,10 @@ public:
 private:
     // Input/Output images
     cv::Mat m_InputImage;
+    // m_OutputImage is inherited from Node base class
     ImTextureID m_PreviewTexture = nullptr;
-    
+    bool m_ShowPreview = true; // Added for optional preview
+
     // Edge detection parameters
     int m_DetectionType = 0;      // 0: Sobel, 1: Canny, 2: Laplacian
     
