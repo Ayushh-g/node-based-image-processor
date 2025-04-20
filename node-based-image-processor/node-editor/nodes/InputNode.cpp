@@ -52,7 +52,7 @@ bool InputNode::LoadImageFile(const std::string& path)
     // Auto-resize large images if enabled
     if (m_EnableAutoResize)
     {
-        int maxDim = max(loadedImage.cols, loadedImage.rows);
+        int maxDim = std::max<int>(loadedImage.cols, loadedImage.rows);
         if (maxDim > m_MaxDimension)
         {
             double scale = (double)m_MaxDimension / maxDim;
@@ -117,7 +117,7 @@ void InputNode::DrawNodeContent()
         const float maxPreviewHeight = 150.0f;
         
         float aspectRatio = (float)m_Image.cols / (float)m_Image.rows;
-        float previewWidth = min(maxPreviewWidth, (float)m_Image.cols);
+        float previewWidth = std::min<int>(maxPreviewWidth, (float)m_Image.cols);
         float previewHeight = previewWidth / aspectRatio;
         
         if (previewHeight > maxPreviewHeight)

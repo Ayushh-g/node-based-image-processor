@@ -31,22 +31,66 @@ This project is a C++ desktop application featuring a node-based graphical user 
 
 ## Build Instructions
 
-This project is configured for building with **Visual Studio**.
+There are two primary ways to build this project: using Visual Studio directly with the provided solution file, or using CMake for more flexibility.
 
-1.  **Prerequisites:**
-    *   Visual Studio (e.g., 2019 or later) with the C++ desktop development workload installed.
-    *   OpenCV library installed on your system.
-2.  **Dependencies:** Most dependencies (like Dear ImGui, ImGui-Node-Editor) are included within the repository structure. The primary external dependency requiring configuration is OpenCV.
-3.  **Open Solution:** Navigate to the directory *containing* the `node-based-image-processor` workspace folder. Locate the Visual Studio Solution file (`.sln`) and open it with Visual Studio.
-4.  **Configure OpenCV:**
-    *   Ensure Visual Studio can find your OpenCV installation. You typically need to configure the following in the project properties for the `node-based-image-processor` project:
-        *   **Include Directories:** (Project Properties -> VC++ Directories -> Include Directories) Add the path to your OpenCV `include` folder (e.g., `C:\opencv\build\include`).
-        *   **Library Directories:** (Project Properties -> VC++ Directories -> Library Directories) Add the path to your OpenCV `lib` folder (e.g., `C:\opencv\build\x64\vc15\lib` - adjust the path based on your VS version and OpenCV build).
-        *   **Linker Input:** (Project Properties -> Linker -> Input -> Additional Dependencies) Add the necessary OpenCV `.lib` files (e.g., `opencv_worldXXX.lib` or individual module libs for Release/Debug builds - replace `XXX` with your OpenCV version number).
-    *   Alternatively, setting the `OPENCV_DIR` environment variable pointing to your OpenCV build directory might be recognized by the project configuration, potentially simplifying the manual path setup.
-5.  **Select Build Configuration:** Choose the desired build configuration (e.g., `Release` or `Debug`) and platform (e.g., `x64`) in Visual Studio.
-6.  **Build:** Build the solution using `Build > Build Solution` (Ctrl+Shift+B).
-7.  **Run:** The executable (`node-based-image-processor.exe`) will be located in the build output directory (e.g., `x64/Release/`).
+### Visual Studio
+
+1.  **Clone Repository:**
+    ```bash
+    git clone https://github.com/Ayushh-g/node-based-image-processor.git
+    cd node-based-image-processor
+    ```
+2.  **Prerequisites:**
+    *   **Visual Studio:** Install Visual Studio (e.g., 2022 or compatible) with the "Desktop development with C++" workload.
+    *   **OpenCV:** Install OpenCV (version 4.x recommended). Add the path to your OpenCV binaries (e.g., `C:\path\to\opencv\build\x64\vc16\bin`) to your system's PATH environment variable. This ensures the necessary OpenCV DLLs can be found at runtime.
+3.  **Dependencies:** Other required libraries (Dear ImGui, ImGui-Node-Editor, GLFW, etc.) are included within the `externals/` directory and are already configured in the solution.
+4.  **Open Solution:** Navigate to the project's root directory and open the `node-based-image-processor.sln` file with Visual Studio.
+5.  **Select Configuration:** In the Visual Studio toolbar, select the **Release** configuration and **x64** platform. *(Using the Release configuration is recommended as project settings are pre-configured for it).*
+6.  **Build Solution:** Build the project using the menu `Build > Build Solution` (or press Ctrl+Shift+B).
+7.  **Run:** Run the application directly from Visual Studio using the "Local Windows Debugger" button (the green play icon) or by pressing F5. Visual Studio will automatically handle running the executable from the correct output directory (`x64/Release/`).
+
+### CMake
+
+This method uses CMake directly, which might be preferable on systems without Visual Studio or for cross-platform building.
+
+1. **Prerequisites (for Windows using MSYS2/MinGW):**
+   *   **Setup MSYS2/MinGW:**
+       ```bash
+       # Install MSYS2 from https://www.msys2.org
+
+       # Update MSYS2 (run in MSYS2 terminal)
+       pacman -Syu
+       pacman -Su 
+       # (Close and reopen terminal if prompted)
+
+       # Install required packages
+       pacman -S --needed base-devel mingw-w64-x86_64-toolchain git cmake make
+       pacman -S mingw-w64-x86_64-opencv mingw-w64-x86_64-glfw
+       ```
+   *   **Add MinGW to PATH:**
+       *   Add `C:\msys64\mingw64\bin` (or your MSYS2 install location) to your Windows System PATH environment variable.
+       *   Restart your terminal or VS Code for the PATH change to take effect.
+   *   **(Note:** Other platforms/compilers will need CMake, Git, a C++17 compiler, and system installations of OpenCV and GLFW findable by CMake.)
+
+2. **Clone Repository:**
+    ```bash
+    git clone https://github.com/Ayushh-g/node-based-image-processor.git
+    cd node-based-image-processor
+    ```
+3. **Configure and Build:**
+    ```bash
+    mkdir build
+    cd build
+    # Choose a generator, e.g., "MinGW Makefiles", "Ninja", "Visual Studio 17 2022"
+    cmake -G "MinGW Makefiles" .. 
+    mingw32-make # Or 'make', 'ninja', 'cmake --build .' depending on generator
+    ```
+    *(Note: Replace `"MinGW Makefiles"` with your desired CMake generator if needed. Replace `mingw32-make` with the corresponding build command.)*
+4. **Run Application:**
+    ```bash
+    ./node-based-image-processor.exe 
+    ```
+
 
 ## Third-Party Libraries
 

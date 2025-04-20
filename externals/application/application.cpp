@@ -98,8 +98,8 @@ void Application::RecreateFontAtlas()
     config.OversampleV = 4;
     config.PixelSnapH = false;
 
-    m_DefaultFont = io.Fonts->AddFontFromFileTTF("data/Play-Regular.ttf", 18.0f, &config);
-    m_HeaderFont  = io.Fonts->AddFontFromFileTTF("data/Cuprum-Bold.ttf",  20.0f, &config);
+    //m_DefaultFont = io.Fonts->AddFontFromFileTTF("data/Play-Regular.ttf", 18.0f, &config);
+    //m_HeaderFont  = io.Fonts->AddFontFromFileTTF("data/Cuprum-Bold.ttf",  20.0f, &config);
 
     io.Fonts->Build();
 }

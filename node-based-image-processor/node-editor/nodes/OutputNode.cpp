@@ -55,7 +55,7 @@ void OutputNode::DrawNodeContent()
         const float maxPreviewHeight = 150.0f;
         
         float aspectRatio = (float)m_PreviewImage.cols / (float)m_PreviewImage.rows;
-        float previewWidth = min(maxPreviewWidth, (float)m_PreviewImage.cols);
+        float previewWidth = std::min<int>(maxPreviewWidth, (float)m_PreviewImage.cols);
         float previewHeight = previewWidth / aspectRatio;
         
         if (previewHeight > maxPreviewHeight)
